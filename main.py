@@ -68,20 +68,3 @@ def handle_product_search(message):
             f"📦 *Producto:* `{query_clean}`\n\n"
             f"🛍️ *Elige dónde comparar:*"
         )
-
-        # AQUÍ ESTABA EL ERROR (LÍNEA 125): Ahora está cerrado correctamente
-        bot.edit_message_text(
-            text=final_text,
-            chat_id=status_msg.chat.id,
-            message_id=status_msg.message_id,
-            reply_markup=markup,
-            parse_mode='Markdown'
-        )
-
-    except Exception as e:
-        print(f"Error: {e}")
-        bot.reply_to(message, "⚠️ *Error temporal*. Inténtalo de nuevo.")
-
-if __name__ == "__main__":
-    print("🚀 Bot iniciado correctamente...")
-    bot.infinity_polling(timeout=30)
