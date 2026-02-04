@@ -2,28 +2,25 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
-# --- CONFIGURACIÓN ---
-# Sustituye las comillas por el Token que te dio BotFather
-TOKEN_TELEGRAM = 'TU_TOKEN_AQUI' 
+# Pega tu token aquí abajo, entre las comillas
+TOKEN_TELEGRAM = '8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U' 
 
 bot = Bot(token=TOKEN_TELEGRAM)
 dp = Dispatcher()
 
-# Saludo inicial en español
 @dp.message(Command("start"))
 async def bienvenido(message: types.Message):
-    await message.answer(f"¡Hola {message.from_user.first_name}! 👋\nSoy tu bot de ofertas. ¡Ya estoy conectado y hablo español!")
+    await message.answer(f"¡Hola! 👋 Bot conectado correctamente.")
 
-# Detector de enlaces
 @dp.message()
 async def capturar(message: types.Message):
-    if "amazon" in message.text.lower():
-        await message.answer("✅ Enlace de Amazon detectado. ¡Buen trabajo!")
+    if message.text and "amazon" in message.text.lower():
+        await message.answer("✅ Enlace de Amazon detectado.")
     else:
-        await message.answer("Recibido. Pásame un link de Amazon para probar.")
+        await message.answer("Pásame un link de Amazon para probar.")
 
 async def main():
-    print("🚀 BOT ENCENDIDO Y EN ESPAÑOL...")
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
