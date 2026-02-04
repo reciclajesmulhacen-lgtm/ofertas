@@ -1,74 +1,30 @@
 import telebot
-from telebot import apihelper, types
+from telebot import types
+import os
 import urllib.parse
-import time
 
-# =========================
-# CONFIGURACIÓN
-# =========================
-TOKEN_TELEGRAM = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
+# Railway leerá el token de las Variables de Entorno por seguridad
+TOKEN_TELEGRAM = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+bot = telebot.TeleBot(TOKEN_TELEGRAM, parse_mode="Markdown")
 
-apihelper.proxy = {'http': 'http://proxy.server:3128', 'https': 'http://proxy.server:3128'}
-bot = telebot.TeleBot(TOKEN_TELEGRAM)
-
-# =========================
-# DICCIONARIO CON RUTAS REALES
-# =========================
-def generar_botones(query):
-    q = urllib.parse.quote(query)
-    markup = types.InlineKeyboardMarkup(row_width=2)
-
-    # Lista de botones con sus URLs de búsqueda reales 2026
-    botones = [
-        # EUROPA
-        types.InlineKeyboardButton("🇪🇸 Mercadona", url=f"https://tienda.mercadona.es{q}"),
-        types.InlineKeyboardButton("🇪🇺 LIDL", url=f"https://www.lidl.es{q}"),
-        types.InlineKeyboardButton("🇫🇷 Carrefour", url=f"https://www.carrefour.es{q}"),
-        types.InlineKeyboardButton("🇬🇧 Tesco", url=f"https://www.tesco.com{q}"),
-
-        # AMÉRICA / GLOBAL
-        types.InlineKeyboardButton("🇺🇸 Walmart", url=f"https://www.walmart.com{q}"),
-        types.InlineKeyboardButton("🌎 eBay", url=f"https://www.ebay.com{q}"),
-        types.InlineKeyboardButton("📦 Amazon ES", url=f"https://www.amazon.es{q}"),
-        types.InlineKeyboardButton("👗 Vinted", url=f"https://www.vinted.es{q}"),
-        types.InlineKeyboardButton("🇦🇷 Mercado Libre", url=f"https://lista.mercadolibre.com.ar{q}"),
-        types.InlineKeyboardButton("🇲🇽 M. Libre MX", url=f"https://lista.mercadolibre.com.mx{q}")
-    ]
-
-    markup.add(*botones)
-    return markup
-
-# =========================
-# LÓGICA DEL BOT
-# =========================
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    msg = (
-        "🚀 *RADAR DE PRECIOS GLOBAL 2026*\n"
-        "━━━━━━━━━━━━━━━━━━━━\n"
-        "Envíame el nombre de un producto y generaré enlaces de búsqueda directos para las tiendas más grandes del mundo."
-    )
-    bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+    bot.reply_to(message, "🚀 *¡RADAR 2026 EN RAILWAY ACTIVO!* 🚀\nEnvíame un nombre de producto o enlace.")
 
 @bot.message_handler(func=lambda m: True)
 def buscar(message):
-    query = message.text.strip()
-    if len(query) < 3:
-        bot.reply_to(message, "⚠️ Escribe un nombre de producto más largo.")
-        return
-
-    msg_status = bot.reply_to(message, "📡 *Generando accesos directos...*", parse_mode="Markdown")
-
-    # Generamos la botonera con las URLs corregidas
-    markup = generar_botones(query)
-
-    bot.edit_message_text(
-        f"✅ *Resultados para:* `{query.upper()}`\n\nToca una tienda para ver los precios actuales:",
-        msg_status.chat.id,
-        msg_status.message_id,
-        reply_markup=markup,
-        parse_mode="Markdown"
+    q = message.text.strip()
+    q_encoded = urllib.parse.quote(q)
+    
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    markup.add(
+        types.InlineKeyboardButton("🇪🇸 Amazon ES", url=f"https://www.amazon.es{q_encoded}"),
+        types.InlineKeyboardButton("🇨🇳 AliExpress", url=f"https://www.aliexpress.com{q_encoded}"),
+        types.InlineKeyboardButton("👗 Vinted", url=f"https://www.vinted.es{q_encoded}"),
+        types.InlineKeyboardButton("🌎 eBay", url=f"https://www.ebay.com{q_encoded}")
     )
+    
+    bot.send_message(message.chat.id, f"🔍 Resultados globales para: `{q.upper()}`", reply_markup=markup)
 
 if __name__ == "__main__":
-    bot.infinity_polling(timeout=60)
+    bot.infinity_polling()
