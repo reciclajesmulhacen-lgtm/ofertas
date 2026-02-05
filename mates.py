@@ -1,3 +1,4 @@
+# mates.py
 TEMARIO = {
     'U1': {
         'titulo': 'Números hasta 1.000.000',
