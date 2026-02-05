@@ -10,7 +10,7 @@ import random
 # ===============================
 TOKEN = os.environ.get("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 PUBLIC_URL = os.environ.get("ofertas-production.up.railway.app")
-PORT = int(os.environ.get("PORT", 8080))
+PORT = int(os.environ.get("PORT", 5000))
 
 if not TOKEN or not PUBLIC_URL:
     raise RuntimeError(
