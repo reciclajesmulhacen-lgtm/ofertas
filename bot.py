@@ -7,7 +7,6 @@ from estadisticas import registrar_resultado, ver_estadisticas
 TOKEN = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
 bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 
-# Nombres que se muestran en los botones del menú principal
 MATERIAS_DISPLAY = {
     'lengua': '📚 Lengua',
     'mates': '🔢 Matemáticas',
@@ -16,7 +15,6 @@ MATERIAS_DISPLAY = {
     'frances': '🇫🇷 Francés'
 }
 
-# Almacén temporal para seguir el examen de cada usuario
 user_stats = {}
 
 # -------------------- MENÚ PRINCIPAL --------------------
@@ -27,7 +25,7 @@ def menu_principal(message):
         markup.add(types.InlineKeyboardButton(nombre, callback_data=f"mat_{id_mat}"))
     bot.send_message(
         message.chat.id,
-        "🎓 ¡Hola! Bienvenido al Aula Virtual 📖\n\nElige la materia que quieres repasar:",
+        "🎓 ¡Bienvenido al Aula Virtual!\n\nElige la materia que quieres repasar:",
         reply_markup=markup
     )
 
@@ -91,6 +89,7 @@ def iniciar_test(call):
         'actual': 0,
         'aciertos': 0,
         'respuestas_usuario': [],
+        'fallos': [],
         'nombre_materia': MATERIAS_DISPLAY[mat],
         'unidad': uni,
         'examen_num': int(modelo),
@@ -124,12 +123,13 @@ def procesar_respuesta(call):
 
     datos = user_stats[chat_id]
     pregunta_actual = datos['preguntas'][datos['actual']]
-    datos['respuestas_usuario'].append(call.data.replace("res_", ""))  # "si" o "no"
-
-    if call.data == "res_si":
+    correcto = call.data.replace("res_", "")
+    datos['respuestas_usuario'].append(correcto)
+    if correcto == "si":
         datos['aciertos'] += 1
         bot.answer_callback_query(call.id, "✅ ¡Correcto!", show_alert=False)
     else:
+        datos['fallos'].append(datos['actual'] + 1)
         bot.answer_callback_query(call.id, "❌ ¡Casi! Sigue adelante 💪", show_alert=False)
 
     bot.delete_message(chat_id, call.message.message_id)
@@ -143,7 +143,7 @@ def finalizar_examen(chat_id):
     unidad = datos['unidad']
     examen_num = datos['examen_num']
 
-    # Guardar resultados reales en estadisticas.py
+    # Guardar resultados
     respuestas_reales = []
     for idx, preg in enumerate(datos['preguntas']):
         if datos['respuestas_usuario'][idx] == "si":
@@ -151,34 +151,65 @@ def finalizar_examen(chat_id):
         else:
             respuestas_reales.append("INCORRECTA")
 
-    registrar_resultado(
-        usuario_id=chat_id,
-        unidad=unidad,
-        examen_num=examen_num,
-        respuestas_usuario=respuestas_reales,
-        TEMARIO=modulo.TEMARIO
-    )
+    registrar_resultado(chat_id, unidad, examen_num, respuestas_reales, modulo.TEMARIO)
 
+    # Mensaje final con gamificación
     nota = datos['aciertos']
     total = len(datos['preguntas'])
     if nota == total:
-        frase = "🏆 ¡Perfecto! ¡Has acertado todas las preguntas!"
+        frase = "🏆 ¡Perfecto! Has acertado todas las preguntas."
     elif nota >= total * 0.7:
-        frase = "🥈 ¡Muy bien! Estás casi ahí."
+        frase = "🥈 ¡Muy bien! Casi perfecto."
     else:
-        frase = "💪 ¡No te rindas! Revisa las preguntas y vuelve a intentarlo."
+        frase = "💪 ¡No te rindas! Repasa las preguntas falladas."
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("🔄 Repasar fallos", callback_data=f"repasar_{unidad}_{examen_num}"))
+    markup.add(types.InlineKeyboardButton("🏠 Volver al menú", callback_data="volver_menu"))
 
     bot.send_message(
         chat_id,
-        f"🏁 **Examen terminado!**\n\nHas acertado **{nota}** de {total} preguntas.\n{frase}\n\nPulsa /menu para volver al menú.",
-        parse_mode="Markdown"
+        f"🏁 **Examen terminado!**\n\nHas acertado **{nota}** de {total} preguntas.\n{frase}",
+        parse_mode="Markdown",
+        reply_markup=markup
     )
 
-    # Mostrar estadísticas completas
-    estadisticas = ver_estadisticas(chat_id, unidad, examen_num)
-    bot.send_message(chat_id, f"📊 **Estadísticas del examen:**\n{estadisticas}", parse_mode="Markdown")
+    user_stats[chat_id]['fallos_guardados'] = datos['fallos']
 
-    del user_stats[chat_id]
+# -------------------- REPASO DE FALLOS --------------------
+@bot.callback_query_handler(func=lambda call: call.data.startswith('repasar_'))
+def repasar_fallos(call):
+    chat_id = call.message.chat.id
+    _, unidad, examen_num = call.data.split('_')
+    datos = user_stats.get(chat_id)
+    if not datos or not datos.get('fallos_guardados'):
+        bot.answer_callback_query(call.id, "❌ No hay fallos para repasar.", show_alert=True)
+        return
+
+    fallos = datos['fallos_guardados']
+    preguntas = [datos['preguntas'][i - 1] for i in fallos]  # Preguntas falladas
+    datos['preguntas'] = preguntas
+    datos['actual'] = 0
+    datos['aciertos'] = 0
+    datos['respuestas_usuario'] = []
+    bot.delete_message(chat_id, call.message.message_id)
+    enviar_pregunta(chat_id)
+
+# -------------------- VOLVER AL MENÚ --------------------
+@bot.callback_query_handler(func=lambda call: call.data == "volver_menu")
+def volver_menu(call):
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+    menu_principal(call.message)
+
+# -------------------- COMANDO ESTADÍSTICAS --------------------
+@bot.message_handler(commands=['estadisticas'])
+def mostrar_estadisticas(message):
+    chat_id = message.chat.id
+    textos = []
+    for mat_id in MATERIAS_DISPLAY.keys():
+        for uni_id in user_stats.get(chat_id, {}).keys():
+            pass  # Podrías implementar estadísticas por materia si quieres
+    bot.send_message(chat_id, "📊 Consulta de estadísticas completa disponible al terminar cada examen.")
 
 # -------------------- INICIAR BOT --------------------
 bot.infinity_polling()
