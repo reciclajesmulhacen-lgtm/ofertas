@@ -7,13 +7,19 @@ import time
 import traceback
 
 # =========================
-# CONFIG - RAILWAY
+# CONFIG - RAILWAY (ROBUSTO)
 # =========================
-TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-if not TOKEN:
-    raise ValueError("TELEGRAM_TOKEN no configurado")
-
-bot = telebot.TeleBot(TOKEN, parse_mode='Markdown')
+try:
+    TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+    if not TOKEN:
+        print("❌ TELEGRAM_TOKEN no encontrado")
+        exit(1)
+    
+    bot = telebot.TeleBot(TOKEN)
+    print("✅ Bot creado correctamente")
+except Exception as e:
+    print(f"❌ Error config: {e}")
+    exit(1)
 
 # =========================
 # COMANDO START
@@ -23,60 +29,70 @@ def start(message):
     welcome_text = (
         "🚀 *Personal Shopper Bot*\n"
         "━━━━━━━━━━━━━━━━━━━━━\n\n"
-        "👋 ¡Hola! Soy tu asistente de compras inteligente.\n\n"
-        "✨ *¿Cómo funciono?*\n"
-        "• Envía el nombre de cualquier producto\n"
-        "• Te daré enlaces directos a los mejores buscadores\n"
-        "• Compara precios en segundos 📊\n\n"
-        "💡 *Ejemplo:* `iPhone 15 Pro`\n\n"
+        "👋 ¡Hola! Soy tu asistente de compras.\n\n"
+        "✨ *Funciona así:*\n"
+        "• Escribe nombre del producto\n"
+        "• Te doy enlaces directos\n\n"
+        "💡 *Ejemplo:* `iPhone 15`\n\n"
         "━━━━━━━━━━━━━━━━━━━━━\n"
-        "🔍 ¡Envía tu primer producto!"
+        "🔍 ¡Prueba ya!"
     )
-    bot.reply_to(message, welcome_text)
+    try:
+        bot.reply_to(message, welcome_text, parse_mode='Markdown')
+    except:
+        bot.reply_to(message, "🚀 Personal Shopper Bot\nPrueba escribiendo un producto")
 
 # =========================
 # HANDLER PRINCIPAL
 # =========================
-@bot.message_handler(func=lambda message: True)
-def handle_product_search(message):
+@bot.message_handler(func=lambda m: True)
+def handle_product(message):
     try:
         query = message.text.strip()
-        
-        if len(query) < 2:
-            bot.reply_to(message, 
-                "❌ *Producto muy corto*\n\n"
-                "💡 Escribe al menos 2 letras\n"
-                "`Ejemplo: Samsung Galaxy`"
-            )
+        if len(query) < 2 or query.startswith('/'):
             return
 
-        # Limpiar query
-        query_clean = re.sub(r'^/[a-zA-Z]+', '', query).strip()
+        query_clean = re.sub(r'^/[a-z]+', '', query).strip()
         if len(query_clean) < 2:
             return
 
-        encoded_query = urllib.parse.quote_plus(query_clean)
+        encoded = urllib.parse.quote_plus(query_clean)
         
-        status_msg = bot.reply_to(message, "🔍 *Buscando ofertas...* ⏳")
-        time.sleep(0.5)
+        status = bot.reply_to(message, "🔍 Buscando...")
+        time.sleep(0.3)
 
-        # Botones de búsqueda
         markup = types.InlineKeyboardMarkup(row_width=1)
-        
         markup.add(
-            types.InlineKeyboardButton(
-                "🌐 Google Shopping", 
-                url=f"https://www.google.com/search?tbm=shop&q={encoded_query}"
-            ),
-            types.InlineKeyboardButton(
-                "🇪🇸 Amazon España", 
-                url=f"https://www.amazon.es/s?k={encoded_query}"
-            )
+            types.InlineKeyboardButton("🌐 Google Shopping", 
+                url=f"https://www.google.com/search?tbm=shop&q={encoded}"),
+            types.InlineKeyboardButton("🇪🇸 Amazon ES", 
+                url=f"https://www.amazon.es/s?k={encoded}")
         )
         markup.add(
-            types.InlineKeyboardButton(
-                "🇨🇳 AliExpress", 
-                url=f"https://www.aliexpress.com/wholesale?SearchText={encoded_query}"
-            ),
-            types.InlineKeyboardButton(
-                "🟦 Bing Shoppi
+            types.InlineKeyboardButton("🇨🇳 AliExpress", 
+                url=f"https://www.aliexpress.com/wholesale?SearchText={encoded}"),
+            types.InlineKeyboardButton("🛒 Wallapop", 
+                url=f"https://es.wallapop.com/search?keywords={encoded}")
+        )
+
+        text = f"✅ *{query_clean}*\n🛍️ Elige dónde buscar:"
+        bot.edit_message_text(text, status.chat.id, status.message_id, 
+                            reply_markup=markup, parse_mode='Markdown')
+
+    except Exception as e:
+        print(f"Handler error: {e}")
+
+# =========================
+# RAILWAY 24/7
+# =========================
+if __name__ == "__main__":
+    print("🚀 Iniciando bot...")
+    
+    while True:
+        try:
+            print("🔄 Polling...")
+            bot.infinity_polling(timeout=30, long_polling_timeout=20)
+        except Exception as e:
+            print(f"❌ Crash: {e}")
+            print("⏳ Reinicio en 5s...")
+            time.sleep(5)
