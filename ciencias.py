@@ -1,55 +1,103 @@
-import random
+# ciencias.py
 
-# TEMARIO CIENCIAS NATURALES Y SOCIALES 5º (Edelvives FanFest)
 TEMARIO = {
-    'U1_NAT': {
-        'titulo': 'Seres Vivos (Clasificación y Ciclos)',
-        'examenes': [
-            [{'p': '¿Cuál es la unidad más pequeña de un ser vivo?', 'o': ['La célula', 'El tejido'], 'r': 'La célula'}, {'p': 'Los seres vivos que fabrican su propio alimento son...', 'o': ['Autótrofos', 'Heterótrofos'], 'r': 'Autótrofos'}, {'p': '¿A qué reino pertenece el moho?', 'o': ['Plantas', 'Hongos (Fungi)'], 'r': 'Hongos (Fungi)'}, {'p': '¿Las bacterias son organismos...?', 'o': ['Unicelulares', 'Pluricelulares'], 'r': 'Unicelulares'}, {'p': 'Las tres funciones vitales son nutrición, relación y...', 'o': ['Reproducción', 'Digestión'], 'r': 'Reproducción'}, {'p': '¿Qué instrumento usamos para ver células?', 'o': ['Telescopio', 'Microscopio'], 'r': 'Microscopio'}, {'p': 'Los animales que comen otros animales son...', 'o': ['Herbívoros', 'Carnívoros'], 'r': 'Carnívoros'}, {'p': '¿En qué reino incluirías a una ameba?', 'o': ['Protoctistas', 'Moneras'], 'r': 'Protoctistas'}, {'p': '¿Las plantas realizan la fotosíntesis?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': 'Un conjunto de células del mismo tipo forma un...', 'o': ['Órgano', 'Tejido'], 'r': 'Tejido'}],
-            [{'p': '¿Qué reino no tiene núcleo definido en sus células?', 'o': ['Moneras', 'Hongos'], 'r': 'Moneras'}, {'p': 'La fotosíntesis ocurre gracias a la...', 'o': ['Clorofila', 'Sangre'], 'r': 'Clorofila'}, {'p': '¿Los hongos se desplazan?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿Qué expulsan las plantas durante la fotosíntesis?', 'o': ['Dióxido de carbono', 'Oxígeno'], 'r': 'Oxígeno'}, {'p': 'Los seres que consumen materia orgánica son...', 'o': ['Heterótrofos', 'Autótrofos'], 'r': 'Heterótrofos'}, {'p': '¿Una levadura es un hongo?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué parte de la célula contiene el material genético?', 'o': ['Núcleo', 'Citoplasma'], 'r': 'Núcleo'}, {'p': '¿Las algas pertenecen al reino...?', 'o': ['Protoctistas', 'Plantas'], 'r': 'Protoctistas'}, {'p': '¿Los virus se consideran seres vivos plenos?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿El reino animal es autótrofo?', 'o': ['Sí', 'No'], 'r': 'No'}],
-            [{'p': '¿Qué envuelve y protege a la célula?', 'o': ['Membrana', 'Núcleo'], 'r': 'Membrana'}, {'p': 'Los organismos pluricelulares tienen...', 'o': ['Una célula', 'Muchas células'], 'r': 'Muchas células'}, {'p': '¿De dónde obtienen energía las plantas?', 'o': ['Del sol', 'De otros animales'], 'r': 'Del sol'}, {'p': '¿Los champiñones hacen la fotosíntesis?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿A qué reino pertenecen las algas pardas?', 'o': ['Protoctistas', 'Plantas'], 'r': 'Protoctistas'}, {'p': '¿Qué función permite tener descendencia?', 'o': ['Relación', 'Reproducción'], 'r': 'Reproducción'}, {'p': '¿Los protozoos viven en ambientes húmedos?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El citoplasma es líquido?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un árbol es un ser pluricelular?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Las bacterias pueden ser beneficiosas?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
+    "U1": {
+        "titulo": "Seres vivos",
+        "examenes": [
+            [
+                {"p": "¿Qué es un **ser vivo**?", "o": ["Un ser que nace, crece, se reproduce y muere", "Un objeto que no cambia nunca"], "r": "Un ser que nace, crece, se reproduce y muere"},
+                {"p": "¿Cuál de estos es un ser vivo?", "o": ["Un árbol", "Una roca"], "r": "Un árbol"},
+                {"p": "¿Cuál de estos NO es un ser vivo?", "o": ["Una mesa", "Un perro"], "r": "Una mesa"},
+                {"p": "¿Qué necesitan los seres vivos para vivir?", "o": ["Agua, aire y alimento", "Solo juguetes"], "r": "Agua, aire y alimento"},
+                {"p": "¿Qué es un **ciclo vital**?", "o": ["Las etapas por las que pasa un ser vivo a lo largo de su vida", "Un viaje en coche"], "r": "Las etapas por las que pasa un ser vivo a lo largo de su vida"},
+                {"p": "¿Qué etapa del ciclo vital ocurre después de nacer?", "o": ["Crecimiento", "Muerte"], "r": "Crecimiento"},
+                {"p": "¿Cómo se llaman los seres vivos que fabrican su propio alimento?", "o": ["Productores", "Consumidores"], "r": "Productores"},
+                {"p": "¿Qué seres vivos son consumidores?", "o": ["Los animales", "Las plantas"], "r": "Los animales"},
+                {"p": "¿Qué significa **clasificar** seres vivos?", "o": ["Agruparlos según características comunes", "Mezclarlos sin orden"], "r": "Agruparlos según características comunes"},
+                {"p": "¿Cuál es una característica común de los mamíferos?", "o": ["Tienen pelo y maman al nacer", "Tienen plumas"], "r": "Tienen pelo y maman al nacer"},
+            ],
+            [],
+            [],
+        ],
     },
-    'U2_NAT': {
-        'titulo': 'Sistemas Humanos (Digestivo, Circulatorio, Respiratorio)',
-        'examenes': [
-            [{'p': '¿Dónde empieza la digestión?', 'o': ['Boca', 'Estómago'], 'r': 'Boca'}, {'p': '¿Qué gas absorbemos al respirar?', 'o': ['Nitrógeno', 'Oxígeno'], 'r': 'Oxígeno'}, {'p': '¿Qué órgano bombea la sangre?', 'o': ['Pulmones', 'Corazón'], 'r': 'Corazón'}, {'p': 'Los vasos que llevan sangre desde el corazón son...', 'o': ['Venas', 'Arterias'], 'r': 'Arterias'}, {'p': '¿Dónde se absorben los nutrientes?', 'o': ['Intestino Delgado', 'Intestino Grueso'], 'r': 'Intestino Delgado'}, {'p': '¿Cómo se llaman los sacos donde ocurre el intercambio de gases?', 'o': ['Alvéolos', 'Bronquios'], 'r': 'Alvéolos'}, {'p': '¿Qué líquido ayuda a digerir en el estómago?', 'o': ['Jugos gástricos', 'Saliva'], 'r': 'Jugos gástricos'}, {'p': 'La sangre está formada por plasma, plaquetas, glóbulos blancos y...', 'o': ['Glóbulos rojos', 'Músculos'], 'r': 'Glóbulos rojos'}, {'p': '¿Qué tubo conecta la boca con el estómago?', 'o': ['Esófago', 'Tráquea'], 'r': 'Esófago'}, {'p': '¿Qué función elimina desechos de la sangre?', 'o': ['Excreción', 'Digestión'], 'r': 'Excreción'}],
-            [{'p': '¿Qué músculo ayuda a los pulmones a moverse?', 'o': ['Bíceps', 'Diafragma'], 'r': 'Diafragma'}, {'p': '¿Dónde se forman las heces?', 'o': ['Intestino Grueso', 'Estómago'], 'r': 'Intestino Grueso'}, {'p': '¿Qué células defienden el cuerpo?', 'o': ['Glóbulos rojos', 'Glóbulos blancos'], 'r': 'Glóbulos blancos'}, {'p': 'Las venas llevan la sangre...', 'o': ['Hacia el corazón', 'Fuera del corazón'], 'r': 'Hacia el corazón'}, {'p': '¿Cómo se llama la mezcla de comida y saliva?', 'o': ['Bolo alimenticio', 'Quimo'], 'r': 'Bolo alimenticio'}, {'p': '¿Qué órgano produce la bilis?', 'o': ['Hígado', 'Páncreas'], 'r': 'Hígado'}, {'p': '¿Cuántas cavidades tiene el corazón humano?', 'o': ['2', '4'], 'r': '4'}, {'p': 'La tráquea se divide en dos...', 'o': ['Bronquios', 'Venas'], 'r': 'Bronquios'}, {'p': '¿Qué plaquetas ayudan a cerrar heridas?', 'o': ['Plaquetas', 'Plasma'], 'r': 'Plaquetas'}, {'p': '¿El aire entra por las fosas nasales?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿Qué sistema transporta oxígeno y nutrientes?', 'o': ['Circulatorio', 'Respiratorio'], 'r': 'Circulatorio'}, {'p': '¿Qué órgano filtra la sangre para crear orina?', 'o': ['Riñones', 'Pulmones'], 'r': 'Riñones'}, {'p': '¿Cuál es el camino del aire tras la faringe?', 'o': ['Laringe', 'Estómago'], 'r': 'Laringe'}, {'p': '¿Qué gas expulsamos al espirar?', 'o': ['Dióxido de carbono', 'Oxígeno'], 'r': 'Dióxido de carbono'}, {'p': '¿Cómo se llama el movimiento del corazón cuando se contrae?', 'o': ['Sístole', 'Diástole'], 'r': 'Sístole'}, {'p': '¿Y cuándo se relaja?', 'o': ['Diástole', 'Sístole'], 'r': 'Diástole'}, {'p': '¿Los capilares son vasos sanguíneos muy finos?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El páncreas interviene en la digestión?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La saliva contiene enzimas?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Es importante beber agua para el sistema excretor?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
-    },
-    'U3_NAT': {
-        'titulo': 'Energía (Renovables y No Renovables)',
-        'examenes': [
-            [{'p': '¿Qué energía viene del Sol?', 'o': ['Solar', 'Eólica'], 'r': 'Solar'}, {'p': '¿El petróleo es renovable?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿Qué energía usa el viento?', 'o': ['Eólica', 'Térmica'], 'r': 'Eólica'}, {'p': '¿La leña es un ejemplo de...?', 'o': ['Biomasa', 'Energía nuclear'], 'r': 'Biomasa'}, {'p': '¿El gas natural es renovable?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿Qué energía se obtiene del movimiento del agua?', 'o': ['Hidráulica', 'Geotérmica'], 'r': 'Hidráulica'}, {'p': '¿Los combustibles fósiles contaminan?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué energía aprovecha el calor interno de la Tierra?', 'o': ['Geotérmica', 'Solar'], 'r': 'Geotérmica'}, {'p': '¿Qué es una placa solar?', 'o': ['Captador de energía solar', 'Generador eólico'], 'r': 'Captador de energía solar'}, {'p': '¿La energía se crea y destruye?', 'o': ['No, solo se transforma', 'Sí, se destruye'], 'r': 'No, solo se transforma'}],
-            [{'p': '¿La energía eólica es renovable?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El carbón es no renovable?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué usa una presa para generar electricidad?', 'o': ['Agua', 'Viento'], 'r': 'Agua'}, {'p': '¿La energía nuclear es limpia?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿Se agotan las fuentes renovables?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿Se agotan las fuentes no renovables?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué es un aerogenerador?', 'o': ['Molino de viento para electricidad', 'Placa solar'], 'r': 'Molino de viento para electricidad'}, {'p': '¿De dónde viene la biomasa?', 'o': ['Materia orgánica', 'Petróleo'], 'r': 'Materia orgánica'}, {'p': '¿El Sol es una fuente inagotable?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La energía se mide en Joules?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿Qué contamina más: carbón o sol?', 'o': ['Carbón', 'Sol'], 'r': 'Carbón'}, {'p': '¿La gasolina es no renovable?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué es un panel solar fotovoltaico?', 'o': ['Genera electricidad', 'Calienta agua'], 'r': 'Genera electricidad'}, {'p': '¿Qué es una central térmica solar?', 'o': ['Calienta agua', 'Genera electricidad con viento'], 'r': 'Calienta agua'}, {'p': '¿Es importante ahorrar energía?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La energía del agua es hidráulica?', 'o': ['Sí', 'No'], 'r': ['Sí']}, {'p': '¿Las placas solares térmicas calientan agua?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El gas es un combustible fósil?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué tipo de energía es la luz?', 'o': ['Radiante', 'Térmica'], 'r': 'Radiante'}, {'p': '¿El sonido es una forma de energía?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
-    },
-    'U4_NAT': {
-        'titulo': 'Fuerzas (Gravedad, Fricción, Máquinas)',
-        'examenes': [
-            [{'p': 'La fuerza de atracción de la Tierra es:', 'o': ['Gravedad', 'Fricción'], 'r': 'Gravedad'}, {'p': '¿Una palanca es una máquina simple?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': 'La fuerza que frena dos objetos en contacto se llama:', 'o': ['Fricción/Rozamiento', 'Gravedad'], 'r': 'Fricción/Rozamiento'}, {'p': 'Una polea ayuda a:', 'o': ['Levantar pesos con menos fuerza', 'Frenar objetos'], 'r': 'Levantar pesos con menos fuerza'}, {'p': '¿Qué fuerza nos mantiene pegados al suelo?', 'o': ['Gravedad', 'Magnetismo'], 'r': 'Gravedad'}, {'p': '¿Qué máquina simple es una rampa?', 'o': ['Plano inclinado', 'Palanca'], 'r': 'Plano inclinado'}, {'p': '¿El peso es una fuerza?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué usamos para medir la fuerza?', 'o': ['Dinamómetro', 'Báscula'], 'r': 'Dinamómetro'}, {'p': '¿El imán ejerce fuerza?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El muelle estirado ejerce fuerza?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿El rozamiento depende de la superficie?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Es más difícil mover algo en hielo o asfalto?', 'o': ['Hielo', 'Asfalto'], 'r': 'Hielo'}, {'p': '¿Una tijera es una palanca doble?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un tornillo es un plano inclinado enrollado?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La rueda reduce la fricción?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Es lo mismo masa y peso?', 'o': ['Sí', 'No'], 'r': 'No'}, {'p': '¿La fuerza puede deformar objetos?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un destornillador es una palanca?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Una polea fija cambia la dirección de la fuerza?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El carro de la compra usa ruedas?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿La fuerza es invisible?', 'o': ['Sí, pero se ven sus efectos', 'No, se ve'], 'r': 'Sí, pero se ven sus efectos'}, {'p': '¿Qué hace la fuerza de gravedad en la Luna?', 'o': ['Es menor que en la Tierra', 'Es igual'], 'r': 'Es menor que en la Tierra'}, {'p': '¿Qué pasa si no hay rozamiento?', 'o': ['No podemos frenar', 'Frenamos rápido'], 'r': 'No podemos frenar'}, {'p': '¿Qué máquina simple es un cuchillo?', 'o': ['Cuña', 'Palanca'], 'r': 'Cuña'}, {'p': '¿Una carretilla es una palanca?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La fuerza de un muelle es elástica?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Se necesita fuerza para empujar una puerta?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un remo es una palanca?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La rampa facilita subir pesos?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La fuerza magnética es a distancia?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
-    },
-    'U5_NAT': {
-        'titulo': 'Sistema Solar (Planetas, Movimientos)',
-        'examenes': [
-            [{'p': '¿Cuántos planetas hay en el sistema solar?', 'o': ['8', '9'], 'r': '8'}, {'p': '¿El Sol es un planeta o una estrella?', 'o': ['Estrella', 'Planeta'], 'r': 'Estrella'}, {'p': 'El movimiento de la Tierra sobre sí misma se llama:', 'o': ['Rotación', 'Traslación'], 'r': 'Rotación'}, {'p': 'El movimiento de la Tierra alrededor del Sol se llama:', 'o': ['Traslación', 'Rotación'], 'r': 'Traslación'}, {'p': '¿Qué planeta es el más cercano al Sol?', 'o': ['Mercurio', 'Venus'], 'r': 'Mercurio'}, {'p': '¿Qué planeta tiene anillos visibles?', 'o': ['Saturno', 'Júpiter'], 'r': 'Saturno'}, {'p': '¿Cuánto tarda la Tierra en dar una vuelta al Sol?', 'o': ['365 días', '24 horas'], 'r': '365 días'}, {'p': '¿Cuánto tarda la Tierra en girar sobre sí misma?', 'o': ['24 horas', '365 días'], 'r': '24 horas'}, {'p': '¿La Luna gira alrededor de la Tierra?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué planeta es el "planeta rojo"?', 'o': ['Marte', 'Venus'], 'r': 'Marte'}],
-            [{'p': '¿El sistema solar forma parte de la Vía Láctea?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué planeta es el más grande?', 'o': ['Júpiter', 'Saturno'], 'r': 'Júpiter'}, {'p': '¿El Sol es el centro del sistema solar?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La rotación causa el día y la noche?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La traslación causa las estaciones del año?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué planeta está entre la Tierra y Júpiter?', 'o': ['Marte', 'Venus'], 'r': 'Marte'}, {'p': '¿Qué son los cometas?', 'o': ['Cuerpos de hielo y polvo', 'Planetas pequeños'], 'r': 'Cuerpos de hielo y polvo'}, {'p': '¿Urano es un gigante de hielo?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Neptuno es el más lejano?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Plutón es un planeta enano?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿Qué planeta es el más caliente?', 'o': ['Venus', 'Mercurio'], 'r': 'Venus'}, {'p': '¿La atmósfera de Venus es muy densa?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Marte tiene agua líquida en la superficie?', 'o': ['Sí, en los polos congelada', 'No, nada'], 'r': 'Sí, en los polos congelada'}, {'p': '¿Qué cinturón de asteroides está entre Marte y Júpiter?', 'o': ['Cinturón principal', 'Cinturón de Kuiper'], 'r': 'Cinturón principal'}, {'p': '¿Es la Tierra el único planeta con vida conocida?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La Luna refleja la luz del Sol?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Las fases de la Luna se deben a su traslación?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Qué causa los eclipses?', 'o': ['La alineación Sol-Tierra-Luna', 'La rotación de la Tierra'], 'r': 'La alineación Sol-Tierra-Luna'}, {'p': '¿Los meteoritos son estrellas fugaces?', 'o': ['Sí, al entrar atmósfera', 'No, son satélites'], 'r': 'Sí, al entrar atmósfera'}, {'p': '¿Los planetas interiores son rocosos?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
-    },
-    'U1_SOC': {
-        'titulo': 'C. Sociales (Continentes, Economía, Transportes)',
-        'examenes': [
-            [{'p': '¿Cuál es el continente más poblado?', 'o': ['Asia', 'América'], 'r': 'Asia'}, {'p': 'La economía se encarga de:', 'o': ['Producir y distribuir bienes', 'Estudiar el tiempo'], 'r': 'Producir y distribuir bienes'}, {'p': '¿Cuál es el continente más grande en superficie?', 'o': ['Asia', 'Europa'], 'r': 'Asia'}, {'p': '¿Los trabajos de servicios son del sector...?', 'o': ['Terciario', 'Primario'], 'r': 'Terciario'}, {'p': '¿La agricultura es sector primario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Fabricar coches es sector...?', 'o': ['Secundario', 'Terciario'], 'r': 'Secundario'}, {'p': '¿Qué transporte usa vías de tren?', 'o': ['Ferroviario', 'Marítimo'], 'r': 'Ferroviario'}, {'p': '¿El transporte aéreo es el más rápido?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El sector terciario es el más importante en España?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Cuántos continentes hay?', 'o': ['6', '5'], 'r': '6'}],
-            [{'p': '¿América del Norte está en el continente América?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Europa está muy poblada?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La ganadería es sector primario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La construcción es sector secundario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un profesor trabaja en el sector...?', 'o': ['Terciario', 'Secundario'], 'r': 'Terciario'}, {'p': '¿El transporte por carretera es el más usado en España?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El transporte marítimo lleva mucha carga?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El paro es un problema económico?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Oceanía es un continente?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿África es un continente?', 'o': ['Sí', 'No'], 'r': 'Sí'}],
-            [{'p': '¿El tiempo histórico estudia el pasado?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Las fábricas pertenecen al sector secundario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un pescador trabaja en el sector primario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿Un médico trabaja en el sector terciario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El comercio es sector terciario?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿El transporte aéreo es barato?', 'o': ['No', 'Sí'], 'r': 'No'}, {'p': '¿Qué es el PIB?', 'o': ['Producto Interior Bruto (riqueza país)', 'Un impuesto'], 'r': 'Producto Interior Bruto (riqueza país)'}, {'p': '¿La prehistoria es un periodo histórico?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La Edad Media va antes de la Edad Moderna?', 'o': ['Sí', 'No'], 'r': 'Sí'}, {'p': '¿La Edad Contemporánea es la actual?', 'o': ['Sí', 'No'], 'r': 'Sí'}]
-        ]
-    }
-}
 
+    "U2": {
+        "titulo": "Sistemas humanos",
+        "examenes": [
+            [
+                {"p": "¿Para qué sirve el **sistema digestivo**?", "o": ["Para obtener nutrientes de los alimentos", "Para mover los huesos"], "r": "Para obtener nutrientes de los alimentos"},
+                {"p": "¿Dónde empieza la digestión?", "o": ["En la boca", "En el corazón"], "r": "En la boca"},
+                {"p": "¿Qué órgano bombea la sangre por todo el cuerpo?", "o": ["El corazón", "El estómago"], "r": "El corazón"},
+                {"p": "¿Qué transporta la sangre?", "o": ["Oxígeno y nutrientes", "Piedras y arena"], "r": "Oxígeno y nutrientes"},
+                {"p": "¿Para qué sirve el **sistema respiratorio**?", "o": ["Para obtener oxígeno del aire", "Para fabricar comida"], "r": "Para obtener oxígeno del aire"},
+                {"p": "¿Dónde se realiza el intercambio de oxígeno y dióxido de carbono?", "o": ["En los pulmones", "En los huesos"], "r": "En los pulmones"},
+                {"p": "¿Qué gas expulsamos al respirar?", "o": ["Dióxido de carbono", "Oxígeno"], "r": "Dióxido de carbono"},
+                {"p": "¿Qué gas necesitamos para vivir?", "o": ["Oxígeno", "Humo"], "r": "Oxígeno"},
+                {"p": "¿Qué órgano del sistema digestivo absorbe la mayoría de los nutrientes?", "o": ["Intestino delgado", "Vejiga"], "r": "Intestino delgado"},
+                {"p": "¿Qué función tiene el sistema circulatorio?", "o": ["Transportar la sangre por todo el cuerpo", "Hacer que el cuerpo crezca de golpe"], "r": "Transportar la sangre por todo el cuerpo"},
+            ],
+            [],
+            [],
+        ],
+    },
+
+    "U3": {
+        "titulo": "Energía",
+        "examenes": [
+            [
+                {"p": "¿Qué es la **energía**?", "o": ["La capacidad para producir cambios o realizar un trabajo", "Un tipo de animal"], "r": "La capacidad para producir cambios o realizar un trabajo"},
+                {"p": "¿Cuál de estas es una fuente de energía **renovable**?", "o": ["El sol", "El petróleo"], "r": "El sol"},
+                {"p": "¿Cuál de estas es una fuente de energía **no renovable**?", "o": ["Carbón", "Viento"], "r": "Carbón"},
+                {"p": "¿Por qué se llaman renovables algunas energías?", "o": ["Porque no se agotan fácilmente en la naturaleza", "Porque se guardan en cajas"], "r": "Porque no se agotan fácilmente en la naturaleza"},
+                {"p": "¿Cuál de estas es energía renovable?", "o": ["Eólica", "Gas natural"], "r": "Eólica"},
+                {"p": "¿Cuál de estas es energía renovable?", "o": ["Hidráulica", "Carbón"], "r": "Hidráulica"},
+                {"p": "¿Qué problema tiene usar energías no renovables?", "o": ["Se agotan y contaminan más", "Son invisibles"], "r": "Se agotan y contaminan más"},
+                {"p": "¿Qué es la **electricidad**?", "o": ["Una forma de energía que se puede transformar en luz, calor o movimiento", "Un tipo de agua"], "r": "Una forma de energía que se puede transformar en luz, calor o movimiento"},
+                {"p": "¿Qué energía utiliza un panel solar?", "o": ["Energía del sol", "Energía del carbón"], "r": "Energía del sol"},
+                {"p": "¿Qué energía se obtiene del movimiento del viento?", "o": ["Energía eólica", "Energía nuclear"], "r": "Energía eólica"},
+            ],
+            [],
+            [],
+        ],
+    },
+
+    "U4": {
+        "titulo": "Fuerzas",
+        "examenes": [
+            [
+                {"p": "¿Qué es una **fuerza**?", "o": ["Un empuje o un tirón que puede mover o deformar un objeto", "Un color brillante"], "r": "Un empuje o un tirón que puede mover o deformar un objeto"},
+                {"p": "¿Qué fuerza hace que los objetos caigan al suelo?", "o": ["La gravedad", "La electricidad"], "r": "La gravedad"},
+                {"p": "¿Qué es la **fricción**?", "o": ["La fuerza que se opone al movimiento cuando dos superficies rozan", "La fuerza de los imanes"], "r": "La fuerza que se opone al movimiento cuando dos superficies rozan"},
+                {"p": "¿Qué ocurre con la fricción cuando una superficie es más rugosa?", "o": ["Aumenta", "Desaparece"], "r": "Aumenta"},
+                {"p": "¿Qué es una **máquina simple**?", "o": ["Un instrumento que ayuda a hacer un trabajo más fácil", "Un animal que corre"], "r": "Un instrumento que ayuda a hacer un trabajo más fácil"},
+                {"p": "¿Cuál de estas es una máquina simple?", "o": ["La palanca", "La nube"], "r": "La palanca"},
+                {"p": "¿Cuál de estas es una máquina simple?", "o": ["La polea", "El río"], "r": "La polea"},
+                {"p": "¿Para qué sirve una palanca?", "o": ["Para levantar o mover objetos con menos esfuerzo", "Para pintar paredes"], "r": "Para levantar o mover objetos con menos esfuerzo"},
+                {"p": "¿Qué es un plano inclinado?", "o": ["Una rampa que ayuda a subir objetos con menos esfuerzo", "Una pelota redonda"], "r": "Una rampa que ayuda a subir objetos con menos esfuerzo"},
+                {"p": "¿Qué ejemplo muestra la fuerza de fricción?", "o": ["Un trineo que se frena en la nieve", "Una piedra que flota"], "r": "Un trineo que se frena en la nieve"},
+            ],
+            [],
+            [],
+        ],
+    },
+
+    "U5": {
+        "titulo": "Sistema Solar",
+        "examenes": [
+            [
+                {"p": "¿Qué es el **Sistema Solar**?", "o": ["El conjunto formado por el Sol y los cuerpos que giran a su alrededor", "Una galaxia completa"], "r": "El conjunto formado por el Sol y los cuerpos que giran a su alrededor"},
+                {"p": "¿Qué es una **estrella**?", "o": ["Un astro que emite luz propia", "Un planeta pequeño"], "r": "Un astro que emite luz propia"},
+                {"p": "¿Qué es el Sol?", "o": ["Una estrella", "Un planeta"], "r": "Una estrella"},
+                {"p": "¿Qué es un **planeta**?", "o": ["Un astro que no tiene luz propia y gira alrededor de una estrella", "Un astro que brilla por sí solo"], "r": "Un astro que no tiene luz propia y gira alrededor de una estrella"},
+                {"p": "¿Cómo se llama el movimiento de la Tierra sobre sí misma?", "o": ["Rotación", "Traslación"], "r": "Rotación"},
+                {"p": "¿Qué produce la rotación de la Tierra?", "o": ["El día y la noche", "Las estaciones"], "r": "El día y la noche"},
+                {"p": "¿Cómo se llama el movimiento de la Tierra alrededor del Sol?", "o": ["Traslación", "Rotación"], "r": "Traslación"},
+                {"p": "¿Qué produce la traslación de la Tierra?", "o": ["Las estaciones del año", "El día y la noche"], "r": "Las estaciones del año"},
+                {"p": "¿Cuál es el planeta más cercano al Sol?", "o": ["Mercurio", "Neptuno"], "r": "Mercurio"},
+                {"p": "¿Cuál es el planeta en el que vivimos?", "o": ["La Tierra", "Júpiter"], "r": "La Tierra"},
+            ],
+            [],
+            [],
+        ],
+    },
 }
