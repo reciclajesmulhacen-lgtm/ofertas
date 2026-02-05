@@ -14,7 +14,6 @@ MATERIAS_DISPLAY = {
     'ingles': '🇬🇧 Inglés',
     'frances': '🇫🇷 Francés'
 }
-
 # Almacén temporal para seguir el juego de cada usuario
 user_stats = {}
 
