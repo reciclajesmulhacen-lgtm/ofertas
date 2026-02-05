@@ -6,8 +6,8 @@
   },
   "deploy": {
     "env": {
-      "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U",
-      "ofertas-production.up.railway.app"
+      "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U": "",
+      "ofertas-production.up.railway.app": ""
     }
   }
 }
