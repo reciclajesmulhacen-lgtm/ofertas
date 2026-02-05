@@ -1,7 +1,6 @@
 import random
 
-# TEMARIO SANTILLANA MOCHILA LIGERA 5º
-
+# TEMARIO CIENCIAS NATURALES Y SOCIALES 5º (Edelvives FanFest)
 TEMARIO_CIENCIAS = {
     'U1_NAT': {
         'titulo': 'Seres Vivos (Clasificación y Ciclos)',
