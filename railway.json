@@ -1,6 +1,13 @@
 {
   "build": {
     "builder": "python",
-    "startCommand": "gunicorn -w 1 -b 0.0.0.0:$PORT main:app"
+    "startCommand": "gunicorn -w 1 -b 0.0.0.0:$PORT main:app",
+    "pythonVersion": "3.11.9"
+  },
+  "deploy": {
+    "env": {
+      "TELEGRAM_BOT_TOKEN": "",
+      "RAILWAY_PUBLIC_DOMAIN": ""
+    }
   }
 }
