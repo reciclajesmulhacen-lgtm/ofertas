@@ -1,102 +1,116 @@
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-import os, time
-from preguntas import BANCO_PREGUNTAS
+from telebot import types
+import importlib
 
-TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+# Configuración inicial
+TOKEN = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
 bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-user_states = {}
+
+# Diccionario de materias vinculadas a tus archivos .py
+MATERIAS = {
+    'lengua': '📚 Lengua',
+    'mates': '🔢 Matemáticas',
+    'ciencias': '🧪 Ciencias',
+    'ingles': '🇬🇧 Inglés',
+    'frances': '🇫🇷 Francés'
+}
+
+# Almacén temporal de notas: {chat_id: {aciertos: 0, total: 0}}
+user_stats = {}
 
 @bot.message_handler(commands=['start', 'menu'])
-def start(message):
-    uid = str(message.from_user.id)
-    user_states[uid] = {'materia': None, 'unidad': None, 'examen': None, 'pregunta': 0, 'aciertos': 0}
+def menu_principal(message):
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    botones = [types.InlineKeyboardButton(nom, callback_data=f"sel_{id}") for id, nom in MATERIAS.items()]
+    markup.add(*botones)
     
-    markup = InlineKeyboardMarkup(row_width=2)
-    btns = [InlineKeyboardButton(m, callback_data=f"mat_{m}") for m in BANCO_PREGUNTAS.keys()]
-    markup.add(*btns)
-    
-    bot.send_message(message.chat.id, "🎓 *CENTRO DE ESTUDIOS 5º*\nElige materia:", reply_markup=markup, parse_mode="Markdown")
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
-def elegir_materia(call):
-    materia = call.data.split('_')[1]
-    user_states[str(call.from_user.id)]['materia'] = materia
-    
-    markup = InlineKeyboardMarkup(row_width=1)
-    for uni_id, info in BANCO_PREGUNTAS[materia].items():
-        markup.add(InlineKeyboardButton(info['titulo'], callback_data=f"uni_{uni_id}"))
-    
-    bot.edit_message_text(f"📚 *{materia}*\nElige unidad:", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
-def elegir_examen(call):
-    unidad = call.data.split('_')[1]
-    user_states[str(call.from_user.id)]['unidad'] = unidad
-    
-    markup = InlineKeyboardMarkup()
-    markup.add(
-        InlineKeyboardButton("📝 Examen A", callback_data="ex_A"),
-        InlineKeyboardButton("📝 Examen B", callback_data="ex_B"),
-        InlineKeyboardButton("📝 Examen C", callback_data="ex_C")
+    bienvenida = (
+        "¡Hola, explorador! 🚀\n"
+        "Soy tu **Profe-Bot del CEIP Las Encinas**.\n"
+        "Elige una asignatura para empezar el reto:"
     )
-    
-    bot.edit_message_text("🎯 *Elige el nivel de examen:*", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
+    bot.send_message(message.chat.id, bienvenida, reply_markup=markup, parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('ex_'))
-def iniciar_examen(call):
-    uid = str(call.from_user.id)
-    examen_tipo = call.data.split('_')[1]
-    user_states[uid]['examen'] = examen_tipo
-    
-    # Verificar si el examen existe en preguntas.py
-    estado = user_states[uid]
-    if not BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['examenes'].get(examen_tipo):
-        bot.answer_callback_query(call.id, "⚠️ Este examen aún no está cargado.", show_alert=True)
+@bot.callback_query_handler(func=lambda call: call.data.startswith('sel_'))
+def seleccionar_unidad(call):
+    materia_id = call.data.split('_')[1]
+    # Carga dinámica del archivo (ej: frances.py)
+    try:
+        modulo = importlib.import_module(materia_id)
+        temario = modulo.TEMARIO
+    except:
+        bot.answer_callback_query(call.id, "⚠️ Materia en construcción...")
         return
 
-    bot.delete_message(call.message.chat.id, call.message.message_id)
-    enviar_pregunta(uid, call.message.chat.id)
+    markup = types.InlineKeyboardMarkup()
+    for id_u, datos in temario.items():
+        markup.add(types.InlineKeyboardButton(f"{id_u}: {datos['titulo']}", callback_data=f"exam_{materia_id}_{id_u}"))
+    
+    bot.edit_message_text(f"✨ ¡Genial! ¿Qué unidad de **{MATERIAS[materia_id]}** quieres repasar?", 
+                          call.message.chat.id, call.message.message_id, reply_markup=markup)
 
-def enviar_pregunta(uid, chat_id):
-    estado = user_states[uid]
-    preguntas = BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['examenes'][estado['examen']]
-    idx = estado['pregunta']
-    
-    if idx >= len(preguntas):
-        finalizar(uid, chat_id)
-        return
+@bot.callback_query_handler(func=lambda call: call.data.startswith('exam_'))
+def preparar_examen(call):
+    _, materia, unidad = call.data.split('_')
+    # Inicializamos estadísticas del alumno
+    user_stats[call.message.chat.id] = {'aciertos': 0, 'pregunta_actual': 0, 'materia': materia, 'unidad': unidad}
+    enviar_pregunta(call.message.chat.id)
 
-    p = preguntas[idx]
-    markup = InlineKeyboardMarkup(row_width=1)
-    for i, opcion in enumerate(p['o']):
-        markup.add(InlineKeyboardButton(opcion, callback_data=f"ans_{idx}_{i}"))
+def enviar_pregunta(chat_id):
+    stats = user_stats[chat_id]
+    modulo = importlib.import_module(stats['materia'])
+    preguntas = modulo.TEMARIO[stats['unidad']]['preguntas']
     
-    bot.send_message(chat_id, f"📝 *Pregunta {idx+1}/{len(preguntas)}*\n\n{p['p']}", reply_markup=markup, parse_mode="Markdown")
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
-def respuesta(call):
-    uid = str(call.from_user.id)
-    _, p_idx, r_idx = call.data.split('_')
-    estado = user_states[uid]
-    
-    if int(p_idx) != estado['pregunta']: return
-    bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-    
-    preg_list = BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['examenes'][estado['examen']]
-    if int(r_idx) == preg_list[int(p_idx)]['c']:
-        estado['aciertos'] += 1
-        bot.send_message(call.message.chat.id, "✅")
+    if stats['pregunta_actual'] < len(preguntas):
+        p = preguntas[stats['pregunta_actual']]
+        markup = types.InlineKeyboardMarkup()
+        
+        # Mezclamos opciones para que no siempre sea la misma posición
+        opciones = list(p['o'])
+        for opt in opciones:
+            es_correcta = "si" if opt == p['r'] else "no"
+            markup.add(types.InlineKeyboardButton(opt, callback_data=f"res_{es_correcta}"))
+        
+        bot.send_message(chat_id, f"❓ **Pregunta {stats['pregunta_actual']+1}/10:**\n\n{p['p']}", 
+                         reply_markup=markup, parse_mode="Markdown")
     else:
-        bot.send_message(call.message.chat.id, f"❌ Era: {preg_list[int(p_idx)]['o'][preg_list[int(p_idx)]['c']]}")
-    
-    estado['pregunta'] += 1
-    time.sleep(0.5)
-    enviar_pregunta(uid, call.message.chat.id)
+        finalizar_examen(chat_id)
 
-def finalizar(uid, chat_id):
-    nota = user_states[uid]['aciertos']
-    bot.send_message(chat_id, f"🏁 *¡FIN!* Nota: {nota}/10\nEscribe /start.")
+@bot.callback_query_handler(func=lambda call: call.data.startswith('res_'))
+def procesar_respuesta(call):
+    chat_id = call.message.chat.id
+    if chat_id not in user_stats: return
+
+    correcta = call.data.split('_')[1] == "si"
+    
+    if correcta:
+        user_stats[chat_id]['aciertos'] += 1
+        bot.answer_callback_query(call.id, "¡Excelente! 🌟", show_alert=False)
+    else:
+        bot.answer_callback_query(call.id, "¡Casi! Sigue intentándolo 💡", show_alert=False)
+
+    # Borramos el mensaje anterior para que el chat no sea infinito y sea más fluido
+    bot.delete_message(chat_id, call.message.message_id)
+    user_stats[chat_id]['pregunta_actual'] += 1
+    enviar_pregunta(chat_id)
+
+def finalizar_examen(chat_id):
+    res = user_stats[chat_id]
+    nota = res['aciertos']
+    
+    # Medallas según nota
+    if nota == 10: medalla = "🏆 ¡PERFECTO! Eres un genio."
+    elif nota >= 7: medalla = "🥈 ¡MUY BIEN! Casi lo tienes."
+    elif nota >= 5: medalla = "🥉 ¡APROBADO! Sigue practicando."
+    else: medalla = "💪 ¡No te rindas! Vuelve a repasarlo."
+
+    mensaje_final = (
+        f"🏁 **¡Examen terminado!**\n\n"
+        f"Has acertado **{nota}** de 10 preguntas.\n"
+        f"{medalla}\n\n"
+        "Pulsa /menu para otra materia."
+    )
+    bot.send_message(chat_id, mensaje_final, parse_mode="Markdown")
+    del user_stats[chat_id]
 
 bot.infinity_polling()
-polling_timeout=10)
