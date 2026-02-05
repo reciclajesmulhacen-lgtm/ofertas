@@ -1,8 +1,6 @@
 {
   "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "python bot.py"
+    "builder": "python",
+    "startCommand": "gunicorn -w 1 -b 0.0.0.0:$PORT main:app"
   }
 }
