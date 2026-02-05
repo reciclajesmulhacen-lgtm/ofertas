@@ -6,8 +6,8 @@
   },
   "deploy": {
     "env": {
-      "TELEGRAM_BOT_TOKEN": "",
-      "RAILWAY_PUBLIC_DOMAIN": ""
+      "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U",
+      "ofertas-production.up.railway.app"
     }
   }
 }
