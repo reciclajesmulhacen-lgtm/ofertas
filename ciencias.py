@@ -1,7 +1,7 @@
 import random
 
 # TEMARIO CIENCIAS NATURALES Y SOCIALES 5º (Edelvives FanFest)
-TEMARIO_CIENCIAS = {
+TEMARIO = {
     'U1_NAT': {
         'titulo': 'Seres Vivos (Clasificación y Ciclos)',
         'examenes': [
