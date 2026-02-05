@@ -1,98 +1,45 @@
 import telebot
 from telebot import types
-import os
-import urllib.parse
 import re
-import time
-import traceback
+import os
 
-# =========================
-# CONFIG - RAILWAY (ROBUSTO)
-# =========================
-try:
-    TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-    if not TOKEN:
-        print("❌ TELEGRAM_TOKEN no encontrado")
-        exit(1)
-    
-    bot = telebot.TeleBot(TOKEN)
-    print("✅ Bot creado correctamente")
-except Exception as e:
-    print(f"❌ Error config: {e}")
-    exit(1)
+# Configuración del Token (Se recomienda usar variables de entorno)
+TOKEN = os.getenv('8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U')
+bot = telebot.TeleBot(TOKEN)
 
-# =========================
-# COMANDO START
-# =========================
-@bot.message_handler(commands=['start'])
-def start(message):
-    welcome_text = (
-        "🚀 *Personal Shopper Bot*\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n\n"
-        "👋 ¡Hola! Soy tu asistente de compras.\n\n"
-        "✨ *Funciona así:*\n"
-        "• Escribe nombre del producto\n"
-        "• Te doy enlaces directos\n\n"
-        "💡 *Ejemplo:* `iPhone 15`\n\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "🔍 ¡Prueba ya!"
-    )
-    try:
-        bot.reply_to(message, welcome_text, parse_mode='Markdown')
-    except:
-        bot.reply_to(message, "🚀 Personal Shopper Bot\nPrueba escribiendo un producto")
+def extract_asin(text):
+    """Extrae el ASIN de enlaces largos y cortos de Amazon."""
+    # Patrón para enlaces largos (/dp/ASIN o /gp/product/ASIN) y cortos
+    asin_pattern = r"(?:[/dp/]|$)([A-Z0-9]{10})(?:[/?]|/|$)"
+    match = re.search(asin_pattern, text)
+    return match.group(1) if match else None
 
-# =========================
-# HANDLER PRINCIPAL
-# =========================
-@bot.message_handler(func=lambda m: True)
-def handle_product(message):
-    try:
-        query = message.text.strip()
-        if len(query) < 2 or query.startswith('/'):
-            return
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "👋 ¡Hola! Pásame un enlace de Amazon y buscaré ahorros para ti.")
 
-        query_clean = re.sub(r'^/[a-z]+', '', query).strip()
-        if len(query_clean) < 2:
-            return
-
-        encoded = urllib.parse.quote_plus(query_clean)
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    text = message.text
+    # Detección de cualquier enlace que parezca de Amazon
+    if "amazon" in text or "amzn.to" in text:
+        asin = extract_asin(text)
         
-        status = bot.reply_to(message, "🔍 Buscando...")
-        time.sleep(0.3)
+        if asin:
+            # Crear botones profesionales
+            markup = types.InlineKeyboardMarkup(row_width=1)
+            btn_reacondicionado = types.InlineKeyboardButton("♻️ Ver Reacondicionados", url=f"https://www.amazon.es{asin}/?condition=used")
+            btn_europa = types.InlineKeyboardButton("🇪🇺 Comparar en Amazon Europa", url=f"https://www.hagglezon.com{asin}")
+            btn_aliexpress = types.InlineKeyboardButton("🔍 Buscar en AliExpress", url=f"https://www.aliexpress.com{asin}")
+            
+            markup.add(btn_reacondicionado, btn_europa, btn_aliexpress)
+            
+            bot.send_message(message.chat.id, f"✅ Producto detectado (ASIN: {asin})\nElige una opción de ahorro:", reply_markup=markup)
+        else:
+            # Feedback inmediato si el enlace falla
+            bot.send_message(message.chat.id, "❌ He visto el enlace, pero no he podido extraer el código del producto. Prueba a compartirlo desde la web.")
+    else:
+        bot.reply_to(message, "Por ahora solo entiendo enlaces de Amazon. ¡Pásame uno!")
 
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        markup.add(
-            types.InlineKeyboardButton("🌐 Google Shopping", 
-                url=f"https://www.google.com/search?tbm=shop&q={encoded}"),
-            types.InlineKeyboardButton("🇪🇸 Amazon ES", 
-                url=f"https://www.amazon.es/s?k={encoded}")
-        )
-        markup.add(
-            types.InlineKeyboardButton("🇨🇳 AliExpress", 
-                url=f"https://www.aliexpress.com/wholesale?SearchText={encoded}"),
-            types.InlineKeyboardButton("🛒 Wallapop", 
-                url=f"https://es.wallapop.com/search?keywords={encoded}")
-        )
-
-        text = f"✅ *{query_clean}*\n🛍️ Elige dónde buscar:"
-        bot.edit_message_text(text, status.chat.id, status.message_id, 
-                            reply_markup=markup, parse_mode='Markdown')
-
-    except Exception as e:
-        print(f"Handler error: {e}")
-
-# =========================
-# RAILWAY 24/7
-# =========================
 if __name__ == "__main__":
-    print("🚀 Iniciando bot...")
-    
-    while True:
-        try:
-            print("🔄 Polling...")
-            bot.infinity_polling(timeout=30, long_polling_timeout=20)
-        except Exception as e:
-            print(f"❌ Crash: {e}")
-            print("⏳ Reinicio en 5s...")
-            time.sleep(5)
+    bot.infinity_polling()
