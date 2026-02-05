@@ -1,65 +1,126 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-import os
-import time
+import os, time
+from preguntas import BANCO_PREGUNTAS
 
-# 1. Configuración del Token
+# Carga del TOKEN desde Railway
 TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-
-# 2. Base de datos: Tema 3 - Versoladas (FanFest 5º)
-preguntas = [
-    {"p": "1. ¿Cómo se llama cada una de las líneas que forman un poema?", "o": ["Párrafo", "Verso", "Enlace"], "c": 1},
-    {"p": "2. ¿Cómo se llama el conjunto de versos de un poema?", "o": ["Estrofa", "Capítulo", "Oración"], "c": 0},
-    {"p": "3. Si dos palabras repiten sonidos a partir de la tónica, decimos que tienen...", "o": ["Ritmo", "Rima", "Métrica"], "c": 1},
-    {"p": "4. En 'La niña lee', ¿qué tipo de determinante es 'La'?", "o": ["Artículo determinado", "Artículo indeterminado", "Demostrativo"], "c": 0},
-    {"p": "5. ¿Cuál de estos es un determinante POSESIVO de varios poseedores?", "o": ["Mi", "Tu", "Nuestro"], "c": 2},
-    {"p": "6. 'Aquella estrella'. ¿Qué distancia indica este demostrativo?", "o": ["Cercanía", "Distancia media", "Lejanía"], "c": 2},
-    {"p": "7. ¿Cuál es la regla de la H para palabras como 'hielo' o 'huevo'?", "o": ["Llevan H por empezar por hie- o hue-", "No llevan H", "Llevan H solo al final"], "c": 0},
-    {"p": "8. ¿Cómo se escriben las formas de los verbos haber, hacer y hablar?", "o": ["Siempre con H", "Sin H", "Con H solo en el pasado"], "c": 0},
-    {"p": "9. ¿Qué palabra está bien escrita siguiendo la regla de la H muda?", "o": ["Ipopótamo", "Hipopótamo", "Ablamos"], "c": 1},
-    {"p": "10. ¿Cómo se llama la rima en la que solo se repiten las VOCALES?", "o": ["Rima consonante", "Rima asonante", "Rima libre"], "c": 1}
-]
-
 user_states = {}
 
-@bot.message_handler(commands=['start'])
-def start(message):
+@bot.message_handler(commands=['start', 'menu'])
+def send_welcome(message):
     uid = str(message.from_user.id)
-    user_states[uid] = {'pregunta': 0, 'aciertos': 0}
-    bot.send_message(message.chat.id, "🎭 *EXAMEN TEMA 3: VERSOLADAS*\n¡Prepárate para demostrar lo que sabes de poesía y lengua!", parse_mode="Markdown")
-    enviar_p(uid, message.chat.id)
+    # Inicializamos el estado del alumno
+    user_states[uid] = {'materia': None, 'unidad': None, 'pregunta': 0, 'aciertos': 0}
+    
+    markup = InlineKeyboardMarkup(row_width=2)
+    # Generar botones automáticamente desde el diccionario de preguntas
+    btns = [InlineKeyboardButton(m, callback_data=f"mat_{m}") for m in BANCO_PREGUNTAS.keys()]
+    markup.add(*btns)
+    
+    texto = (
+        "🚀 *¡BIENVENIDO A TU ACADEMIA VIRTUAL!* 🚀\n"
+        "----------------------------------------\n"
+        "Hola, soy tu tutor de 5º de Primaria.\n"
+        "¿Qué asignatura quieres practicar hoy?"
+    )
+    bot.send_message(message.chat.id, texto, reply_markup=markup, parse_mode="Markdown")
 
-def enviar_p(uid, chat_id):
-    idx = user_states[uid]['pregunta']
-    if idx >= 10:
-        nota = user_states[uid]['aciertos']
-        bot.send_message(chat_id, f"🏁 *¡EXAMEN FINALIZADO!*\n✅ Nota final: {nota}/10", parse_mode="Markdown")
-        return
-    p = preguntas[idx]
+@bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
+def select_subject(call):
+    uid = str(call.from_user.id)
+    materia = call.data.replace("mat_", "")
+    user_states[uid]['materia'] = materia
+    
     markup = InlineKeyboardMarkup(row_width=1)
-    for i, opcion in enumerate(p['o']):
-        markup.add(InlineKeyboardButton(opcion, callback_data=f"{idx}-{i}"))
-    bot.send_message(chat_id, f"📝 *Pregunta {idx+1} de 10*\n\n{p['p']}", reply_markup=markup, parse_mode="Markdown")
+    for uni_id, info in BANCO_PREGUNTAS[materia].items():
+        markup.add(InlineKeyboardButton(info['titulo'], callback_data=f"uni_{uni_id}"))
+    
+    markup.add(InlineKeyboardButton("⬅️ Volver a Materias", callback_data="back_main"))
+    
+    bot.edit_message_text(f"📚 Asignatura: *{materia}*\nElige el tema del examen:", 
+                         call.message.chat.id, call.message.message_id, 
+                         reply_markup=markup, parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: True)
-def respuesta(call):
+@bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
+def start_exam(call):
+    uid = str(call.from_user.id)
+    unidad = call.data.replace("uni_", "")
+    user_states[uid]['unidad'] = unidad
+    user_states[uid]['pregunta'] = 0
+    user_states[uid]['aciertos'] = 0
+    
+    bot.edit_message_text("⚙️ *Generando preguntas aleatorias...*", 
+                         call.message.chat.id, call.message.message_id, parse_mode="Markdown")
+    time.sleep(1)
+    send_question(uid, call.message.chat.id)
+
+def send_question(uid, chat_id):
+    estado = user_states[uid]
+    preguntas = BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['preguntas']
+    idx = estado['pregunta']
+    
+    if idx >= len(preguntas):
+        finish_exam(uid, chat_id)
+        return
+
+    p_data = preguntas[idx]
+    # Barra de progreso visual para el niño
+    progreso = "⭐" * (idx + 1) + "⚪" * (len(preguntas) - (idx + 1))
+    
+    markup = InlineKeyboardMarkup(row_width=1)
+    for i, opcion in enumerate(p_data['o']):
+        markup.add(InlineKeyboardButton(opcion, callback_data=f"ans_{idx}_{i}"))
+    
+    bot.send_message(chat_id, f"{progreso}\n\n❓ *{p_data['p']}*", 
+                     reply_markup=markup, parse_mode="Markdown")
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
+def handle_answer(call):
     uid = str(call.from_user.id)
     if uid not in user_states: return
+    
     try:
-        info = call.data.split('-')
-        p_idx, r_idx = int(info[0]), int(info[1])
-    except: return
-    if p_idx != user_states[uid]['pregunta']: return
-    bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-    if r_idx == preguntas[p_idx]['c']:
-        user_states[uid]['aciertos'] += 1
-        bot.send_message(call.message.chat.id, "✅ *¡Muy bien hecho!*")
-    else:
-        bot.send_message(call.message.chat.id, f"❌ *No es correcto.*\nLa buena era: {preguntas[p_idx]['o'][preguntas[p_idx]['c']]}")
-    user_states[uid]['pregunta'] += 1
-    time.sleep(1)
-    enviar_p(uid, call.message.chat.id)
+        _, p_idx, r_idx = call.data.split('_')
+        estado = user_states[uid]
+        
+        # Bloqueo de seguridad para no repetir pregunta
+        if int(p_idx) != estado['pregunta']: return
+        
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+        
+        unidad_data = BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['preguntas'][int(p_idx)]
+        
+        if int(r_idx) == unidad_data['c']:
+            estado['aciertos'] += 1
+            bot.send_message(call.message.chat.id, "✅ *¡EXCELENTE!* Estás aprendiendo mucho.")
+        else:
+            correcta = unidad_data['o'][unidad_data['c']]
+            bot.send_message(call.message.chat.id, f"❌ *¡Ánimo!* La respuesta correcta era: *{correcta}*", parse_mode="Markdown")
+        
+        estado['pregunta'] += 1
+        time.sleep(0.6)
+        send_question(uid, call.message.chat.id)
+    except Exception as e:
+        print(f"Error: {e}")
+
+def finish_exam(uid, chat_id):
+    estado = user_states[uid]
+    aciertos = estado['aciertos']
+    total = len(BANCO_PREGUNTAS[estado['materia']][estado['unidad']]['preguntas'])
+    
+    # Mensaje motivador según la nota
+    if aciertos == total: final_msg = "🏆 ¡ERES UN GENIO! Nota máxima."
+    elif aciertos >= total/2: final_msg = "👏 ¡Muy bien! Has aprobado el examen."
+    else: final_msg = "📚 ¡Tú puedes! Repasa un poco y vuelve a intentarlo."
+    
+    bot.send_message(chat_id, f"🏁 *¡EXAMEN FINALIZADO!*\n\n🎯 Aciertos: {aciertos}/{total}\n✨ {final_msg}\n\nUsa /menu para estudiar otra cosa.")
+
+@bot.callback_query_handler(func=lambda call: call.data == "back_main")
+def back_to_main(call):
+    send_welcome(call.message)
 
 if __name__ == "__main__":
-    bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    print("Bot Educativo 2026 en marcha...")
+    bot.infinity_polling(timeout=20, long_polling_timeout=10)
