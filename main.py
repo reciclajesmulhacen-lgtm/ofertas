@@ -209,4 +209,41 @@ def finalizar_examen(uid, chat_id):
     elif nota >= 8:
         resultado = "⭐ **¡EXCELENTE!** ⭐\n*¡Dominas los determinantes!*"
         emoji = "👏"
-    elif 
+    elif nota >= 6:
+        resultado = "📈 **¡APROBADO!** 📈\n*¡Buen trabajo, sigue así!*"
+        emoji = "👍"
+    elif nota >= 4:
+        resultado = "⚠️ **RECUPERABLE** ⚠️\n*Repasa los conceptos clave.*"
+        emoji = "💪"
+    else:
+        resultado = "📚 **A REPASAR** 📚\n*¡Vuelve a estudiar los determinantes!*"
+        emoji = "🔄"
+    
+    mensaje_final = (
+        f"{emoji} **RESULTADO FINAL**\n\n"
+        f"✅ **Aciertos:** {estado['aciertos']}/10\n"
+        f"❌ **Fallos:** {estado['fallos']}/10\n"
+        f"📊 **Nota:** {nota}/10\n\n"
+        f"{resultado}\n\n"
+        f"🔄 `/start` para **nuevo examen**"
+    )
+    
+    bot.send_message(chat_id, mensaje_final)
+    del user_states[uid]
+
+@bot.message_handler(commands=['stats'])
+def stats(message):
+    uid = message.from_user.id
+    if uid in user_states and user_states[uid]['iniciado']:
+        estado = user_states[uid]
+        bot.reply_to(message, 
+            f"📊 **Progreso actual:**\n"
+            f"Pregunta {estado['pregunta_actual']+1}/10\n"
+            f"Aciertos: {estado['aciertos']}/{estado['pregunta_actual']}"
+        )
+    else:
+        bot.reply_to(message, "❓ No has iniciado examen. Usa `/start`")
+
+if __name__ == '__main__':
+    print("🤖 Bot de examen iniciado...")
+    bot.infinity_polling(none_stop=True)
