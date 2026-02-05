@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 import importlib
 import random
+from estadisticas import registrar_resultado, ver_estadisticas
 
 TOKEN = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
 bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
@@ -14,6 +15,7 @@ MATERIAS_DISPLAY = {
     'ingles': '🇬🇧 Inglés',
     'frances': '🇫🇷 Francés'
 }
+
 # Almacén temporal para seguir el juego de cada usuario
 user_stats = {}
 
@@ -26,23 +28,17 @@ def menu_principal(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
 def abrir_materia(call):
-    materia_id = call.data.split('_')[1] # Extrae 'mates', 'frances', etc.
+    materia_id = call.data.split('_')[1]
     try:
-        # Importación dinámica: busca el archivo exacto (ej: mates.py)
         modulo = importlib.import_module(materia_id)
-        importlib.reload(modulo) # Recarga por si actualizas el archivo
-        
-        # Leemos la variable TEMARIO del archivo importado (¡Esto es lo clave!)
-        temario = modulo.TEMARIO 
-        
+        importlib.reload(modulo)
+        temario = modulo.TEMARIO
         markup = types.InlineKeyboardMarkup()
         for uni_id, datos in temario.items():
             markup.add(types.InlineKeyboardButton(f"{uni_id}: {datos['titulo']}", callback_data=f"uni_{materia_id}_{uni_id}"))
-        
         bot.edit_message_text(f"Unidades de {MATERIAS_DISPLAY[materia_id]}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
     except Exception as e:
-        # Este error es el que te salía antes. Te dice que el archivo no tiene la variable TEMARIO.
-        bot.answer_callback_query(call.id, f"Error: No encuentro la variable 'TEMARIO' en el archivo {materia_id}.py. Revisa el nombre.", show_alert=True)
+        bot.answer_callback_query(call.id, f"Error: No encuentro la variable 'TEMARIO' en el archivo {materia_id}.py.", show_alert=True)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
 def elegir_examen(call):
@@ -56,19 +52,20 @@ def elegir_examen(call):
 def iniciar_test(call):
     _, mat, uni, modelo = call.data.split('_')
     modulo = importlib.import_module(mat)
-    
-    # Seleccionamos las preguntas del examen específico (índice 0, 1 o 2)
     preguntas_pool = modulo.TEMARIO[uni]['examenes'][int(modelo)-1]
-    
+
     if not preguntas_pool:
-         bot.answer_callback_query(call.id, "⚠️ Este examen está vacío, elige otro modelo.", show_alert=True)
-         return
+        bot.answer_callback_query(call.id, "⚠️ Este examen está vacío, elige otro modelo.", show_alert=True)
+        return
 
     user_stats[call.message.chat.id] = {
         'preguntas': preguntas_pool,
         'actual': 0,
         'aciertos': 0,
-        'nombre_materia': MATERIAS_DISPLAY[mat]
+        'nombre_materia': MATERIAS_DISPLAY[mat],
+        'unidad': uni,
+        'examen_num': int(modelo),
+        'materia_modulo': modulo
     }
     bot.delete_message(call.message.chat.id, call.message.message_id)
     enviar_pregunta(call.message.chat.id)
@@ -80,12 +77,10 @@ def enviar_pregunta(chat_id):
         markup = types.InlineKeyboardMarkup(row_width=1)
         opciones = list(p['o'])
         random.shuffle(opciones)
-        
         for opcion in opciones:
             es_correcta = "si" if opcion == p['r'] else "no"
             markup.add(types.InlineKeyboardButton(opcion, callback_data=f"res_{es_correcta}"))
-        
-        texto_pregunta = f"📖 **{datos['nombre_materia']}**\n\n❓ **Pregunta {datos['actual'] + 1} de 10:**\n\n{p['p']}"
+        texto_pregunta = f"📖 **{datos['nombre_materia']}**\n\n❓ **Pregunta {datos['actual'] + 1} de {len(datos['preguntas'])}:**\n\n{p['p']}"
         bot.send_message(chat_id, texto_pregunta, reply_markup=markup, parse_mode="Markdown")
     else:
         finalizar_examen(chat_id)
@@ -107,14 +102,34 @@ def procesar_respuesta(call):
 
 def finalizar_examen(chat_id):
     res = user_stats[chat_id]
+    modulo = res['materia_modulo']
+    unidad = res['unidad']
+    examen_num = res['examen_num']
+
+    # Registrar en estadisticas.py
+    registrar_resultado(
+        usuario_id=chat_id,
+        unidad=unidad,
+        examen_num=examen_num,
+        respuestas_usuario=[p['r'] for p in res['preguntas']],  # opcional, aquí podrías enviar respuestas reales
+        TEMARIO=modulo.TEMARIO
+    )
+
     nota = res['aciertos']
     total_preguntas = len(res['preguntas'])
-    
-    if nota == total_preguntas: frase = "🏆 ¡PERFECTO! Eres un genio."
-    elif nota >= total_preguntas * 0.7: frase = "🥈 ¡MUY BIEN! Casi lo tienes."
-    else: frase = "💪 ¡No te rindas! Vuelve a repasarlo."
+    if nota == total_preguntas:
+        frase = "🏆 ¡PERFECTO! Eres un genio."
+    elif nota >= total_preguntas * 0.7:
+        frase = "🥈 ¡MUY BIEN! Casi lo tienes."
+    else:
+        frase = "💪 ¡No te rindas! Vuelve a repasarlo."
 
     bot.send_message(chat_id, f"🏁 **¡Examen terminado!**\n\nHas acertado **{nota}** de {total_preguntas} preguntas.\n{frase}\n\nPulsa /menu para volver a jugar.", parse_mode="Markdown")
+
+    # Mostrar estadísticas
+    estadisticas = ver_estadisticas(chat_id, unidad, examen_num)
+    bot.send_message(chat_id, f"📊 **Estadísticas del examen:**\n{estadisticas}", parse_mode="Markdown")
+
     del user_stats[chat_id]
 
 bot.infinity_polling()
