@@ -1,163 +1,83 @@
-# mates.py
-
 TEMARIO = {
-    "U1": {
-        "titulo": "Números hasta 1.000.000",
-        "examenes": [
+    'U1': {
+        'titulo': 'Números hasta 1.000.000',
+        'examenes': [
             [
-                {"p": "¿Cómo se escribe en cifras: **quinientos cuarenta y dos mil**?", "o": ["542000", "54200"], "r": "542000"},
-                {"p": "¿Qué número es mayor?", "o": ["405.120", "450.012"], "r": "450.012"},
-                {"p": "En el número **735.482**, ¿qué valor tiene el **3**?", "o": ["30.000", "3.000"], "r": "30.000"},
-                {"p": "¿Cuál es el número anterior a **200.000**?", "o": ["199.999", "199.990"], "r": "199.999"},
-                {"p": "¿Cuál es el número siguiente a **999.999**?", "o": ["1.000.000", "999.100"], "r": "1.000.000"},
-                {"p": "¿Qué cifra ocupa las **decenas de millar** en **684.219**?", "o": ["8", "4"], "r": "8"},
-                {"p": "¿Cuál de estas descomposiciones es correcta para **120.305**?", "o": ["100.000 + 20.000 + 300 + 5", "100.000 + 2.000 + 300 + 5"], "r": "100.000 + 20.000 + 300 + 5"},
-                {"p": "¿Cómo se lee el número **900.010**?", "o": ["Novecientos mil diez", "Novecientos diez"], "r": "Novecientos mil diez"},
-                {"p": "¿Cuál es el número formado por: 6 centenas de millar, 2 unidades de millar y 9 unidades?", "o": ["602.009", "620.009"], "r": "602.009"},
-                {"p": "¿Qué número está entre **345.000** y **346.000**?", "o": ["345.600", "346.600"], "r": "345.600"},
+                {'p': '¿Cuál es el valor posicional del 5 en 356.000?', 'o': ['50.000', '5.000', '500.000'], 'r': '50.000'},
+                {'p': 'Escribe en palabras: 234.567', 'o': ['Doscientos treinta y cuatro mil quinientos sesenta y siete', 'Doscientos treinta y cuatro mil quinientos seis', 'Dos millones trescientos cuarenta y cinco mil seiscientos siete'], 'r': 'Doscientos treinta y cuatro mil quinientos sesenta y siete'},
+                {'p': 'Número mayor: 456.789 o 465.789', 'o': ['465.789', '456.789', '456.798'], 'r': '465.789'},
+                {'p': 'Escribe en cifras: "Setecientos mil"', 'o': ['700.000', '70.000', '7.000'], 'r': '700.000'},
+                {'p': 'Valor del dígito 3 en 431.256', 'o': ['30.000', '3.000', '300.000'], 'r': '30.000'},
+                {'p': 'Número menor: 123.456 o 123.465', 'o': ['123.456', '123.465', '123.546'], 'r': '123.456'},
+                {'p': 'Escribe en palabras: 501.002', 'o': ['Quinientos un mil dos', 'Quinientos un mil veinte', 'Quinientos mil dos'], 'r': 'Quinientos un mil dos'},
+                {'p': 'Valor del 6 en 206.435', 'o': ['6.000', '60.000', '600'], 'r': '6.000'},
+                {'p': 'Número mayor: 789.654 o 798.654', 'o': ['798.654', '789.654', '786.954'], 'r': '798.654'},
+                {'p': 'Escribe en cifras: "Ochocientos mil treinta y cuatro"', 'o': ['800.034', '803.000', '80.034'], 'r': '800.034'}
             ],
-            [],
-            [],
-        ],
-    },
-
-    "U2": {
-        "titulo": "Operaciones con números naturales",
-        "examenes": [
             [
-                {"p": "¿Cuál es el resultado de **35.240 + 8.760**?", "o": ["44.000", "43.000"], "r": "44.000"},
-                {"p": "¿Cuál es el resultado de **90.000 - 46.500**?", "o": ["43.500", "44.500"], "r": "43.500"},
-                {"p": "¿Cuál es el resultado de **325 × 4**?", "o": ["1300", "1200"], "r": "1300"},
-                {"p": "¿Cuál es el resultado de **2.400 ÷ 6**?", "o": ["400", "600"], "r": "400"},
-                {"p": "En una multiplicación, ¿cómo se llama el resultado?", "o": ["Producto", "Cociente"], "r": "Producto"},
-                {"p": "En una división, ¿cómo se llama el número que se divide?", "o": ["Dividendo", "Divisor"], "r": "Dividendo"},
-                {"p": "¿Cuál es el resultado de **18 × 30**?", "o": ["540", "480"], "r": "540"},
-                {"p": "Si **7 × 9 = 63**, entonces **63 ÷ 9 =** ...", "o": ["7", "9"], "r": "7"},
-                {"p": "¿Qué operación es mejor para resolver: “repartir 48 caramelos entre 6 niños”?", "o": ["División", "Multiplicación"], "r": "División"},
-                {"p": "¿Cuál es el resultado de **1.000 - 375**?", "o": ["625", "675"], "r": "625"},
+                {'p': 'Valor del 4 en 245.678', 'o': ['40.000', '4.000', '400.000'], 'r': '40.000'},
+                {'p': 'Número mayor: 345.678 o 354.678', 'o': ['354.678', '345.678', '345.867'], 'r': '354.678'},
+                {'p': 'Escribe en palabras: 610.009', 'o': ['Seiscientos diez mil nueve', 'Seiscientos mil nueve', 'Seiscientos diez mil noventa'], 'r': 'Seiscientos diez mil nueve'},
+                {'p': 'Valor del 2 en 432.156', 'o': ['2.000', '20.000', '200.000'], 'r': '2.000'},
+                {'p': 'Número menor: 987.654 o 978.654', 'o': ['978.654', '987.654', '976.854'], 'r': '978.654'},
+                {'p': 'Escribe en cifras: "Doscientos mil cuarenta y cinco"', 'o': ['200.045', '204.500', '200.450'], 'r': '200.045'},
+                {'p': 'Valor del dígito 5 en 350.127', 'o': ['50.000', '5.000', '500.000'], 'r': '50.000'},
+                {'p': 'Número mayor: 412.789 o 421.789', 'o': ['421.789', '412.789', '417.289'], 'r': '421.789'},
+                {'p': 'Escribe en palabras: 705.012', 'o': ['Setecientos cinco mil doce', 'Setecientos cinco mil ciento dos', 'Setecientos cincuenta mil doce'], 'r': 'Setecientos cinco mil doce'},
+                {'p': 'Valor del 3 en 430.257', 'o': ['30.000', '3.000', '300.000'], 'r': '30.000'}
             ],
-            [],
-            [],
-        ],
-    },
-
-    "U3": {
-        "titulo": "Decimales",
-        "examenes": [
             [
-                {"p": "¿Cuál de estos números es mayor?", "o": ["3,7", "3,07"], "r": "3,7"},
-                {"p": "¿Cuál es el resultado de **2,5 + 1,3**?", "o": ["3,8", "3,7"], "r": "3,8"},
-                {"p": "¿Cuál es el resultado de **5,0 - 2,6**?", "o": ["2,4", "3,4"], "r": "2,4"},
-                {"p": "¿Qué número tiene **4 unidades y 9 décimas**?", "o": ["4,9", "4,09"], "r": "4,9"},
-                {"p": "¿Qué significa la cifra **6** en el número **12,63**?", "o": ["6 décimas", "6 centésimas"], "r": "6 décimas"},
-                {"p": "¿Cuál es la forma decimal de: 7 unidades y 3 centésimas?", "o": ["7,03", "7,3"], "r": "7,03"},
-                {"p": "Ordena de menor a mayor: 1,2 — 1,15. ¿Cuál va primero?", "o": ["1,15", "1,2"], "r": "1,15"},
-                {"p": "¿Cuál de estos números tiene **dos cifras decimales**?", "o": ["4,56", "4,5"], "r": "4,56"},
-                {"p": "¿Cuál es el resultado de **0,8 + 0,2**?", "o": ["1,0", "0,10"], "r": "1,0"},
-                {"p": "¿Qué número es igual a **3,50**?", "o": ["3,5", "3,05"], "r": "3,5"},
-            ],
-            [],
-            [],
-        ],
+                {'p': 'Número mayor: 123.456 o 132.456', 'o': ['132.456', '123.456', '123.465'], 'r': '132.456'},
+                {'p': 'Escribe en cifras: "Cuatrocientos mil ochocientos doce"', 'o': ['400.812', '408.012', '400.182'], 'r': '400.812'},
+                {'p': 'Valor del 1 en 512.430', 'o': ['10.000', '100.000', '1.000'], 'r': '10.000'},
+                {'p': 'Número menor: 876.543 o 867.543', 'o': ['867.543', '876.543', '875.643'], 'r': '867.543'},
+                {'p': 'Escribe en palabras: 603.007', 'o': ['Seiscientos tres mil siete', 'Seiscientos treinta mil siete', 'Seiscientos tres mil setenta'], 'r': 'Seiscientos tres mil siete'},
+                {'p': 'Valor del 2 en 425.316', 'o': ['20.000', '2.000', '200.000'], 'r': '20.000'},
+                {'p': 'Número mayor: 234.567 o 245.367', 'o': ['245.367', '234.567', '243.567'], 'r': '245.367'},
+                {'p': 'Escribe en cifras: "Setecientos mil treinta y uno"', 'o': ['700.031', '703.001', '700.130'], 'r': '700.031'},
+                {'p': 'Valor del 5 en 450.218', 'o': ['50.000', '5.000', '500.000'], 'r': '50.000'},
+                {'p': 'Número menor: 312.456 o 321.456', 'o': ['312.456', '321.456', '314.526'], 'r': '312.456'}
+            ]
+        ]
     },
-
-    "U4": {
-        "titulo": "Fracciones comunes",
-        "examenes": [
+    'U2': {
+        'titulo': 'Operaciones naturales',
+        'examenes': [
             [
-                {"p": "¿Qué fracción representa **la mitad**?", "o": ["1/2", "1/4"], "r": "1/2"},
-                {"p": "¿Qué fracción representa **un cuarto**?", "o": ["1/4", "1/2"], "r": "1/4"},
-                {"p": "¿Cuál es mayor?", "o": ["3/4", "1/2"], "r": "3/4"},
-                {"p": "¿Cuál es una fracción equivalente a **1/2**?", "o": ["2/4", "2/3"], "r": "2/4"},
-                {"p": "Si una pizza se divide en 8 partes y comes 2, ¿qué fracción has comido?", "o": ["2/8", "2/6"], "r": "2/8"},
-                {"p": "¿Cuál es una fracción equivalente a **3/6**?", "o": ["1/2", "1/3"], "r": "1/2"},
-                {"p": "¿Qué fracción representa 5 partes de 10 iguales?", "o": ["5/10", "10/5"], "r": "5/10"},
-                {"p": "¿Cuál de estas fracciones está simplificada?", "o": ["1/3", "2/6"], "r": "1/3"},
-                {"p": "¿Cuál es mayor?", "o": ["2/3", "2/5"], "r": "2/3"},
-                {"p": "¿Cuál es equivalente a **4/8**?", "o": ["1/2", "1/4"], "r": "1/2"},
+                {'p': 'Suma: 234 + 567 = ?', 'o': ['801', '701', '802'], 'r': '801'},
+                {'p': 'Resta: 900 - 456 = ?', 'o': ['444', '454', '454'], 'r': '444'},
+                {'p': 'Multiplicación: 12 × 11 = ?', 'o': ['132', '121', '142'], 'r': '132'},
+                {'p': 'División: 144 ÷ 12 = ?', 'o': ['12', '11', '14'], 'r': '12'},
+                {'p': 'Suma: 678 + 123 = ?', 'o': ['801', '701', '811'], 'r': '801'},
+                {'p': 'Resta: 500 - 275 = ?', 'o': ['225', '235', '2250'], 'r': '225'},
+                {'p': 'Multiplicación: 15 × 10 = ?', 'o': ['150', '155', '105'], 'r': '150'},
+                {'p': 'División: 81 ÷ 9 = ?', 'o': ['9', '8', '10'], 'r': '9'},
+                {'p': 'Suma: 345 + 456 = ?', 'o': ['801', '790', '800'], 'r': '801'},
+                {'p': 'Resta: 600 - 123 = ?', 'o': ['477', '467', '487'], 'r': '477'}
             ],
-            [],
-            [],
-        ],
-    },
-
-    "U5": {
-        "titulo": "Geometría plana",
-        "examenes": [
             [
-                {"p": "¿Cómo se llama un polígono de **3 lados**?", "o": ["Triángulo", "Cuadrilátero"], "r": "Triángulo"},
-                {"p": "¿Cómo se llama un polígono de **4 lados**?", "o": ["Cuadrilátero", "Pentágono"], "r": "Cuadrilátero"},
-                {"p": "¿Cuál de estas descripciones corresponde a un **pentágono**?", "o": ["Un polígono de 5 lados", "Un polígono de 6 lados"], "r": "Un polígono de 5 lados"},
-                {"p": "¿Cómo se llama un polígono de **6 lados**?", "o": ["Hexágono", "Heptágono"], "r": "Hexágono"},
-                {"p": "El **perímetro** es...", "o": ["La suma de todos los lados", "El espacio que ocupa por dentro"], "r": "La suma de todos los lados"},
-                {"p": "Un triángulo con **tres lados iguales** se llama...", "o": ["Equilátero", "Isósceles"], "r": "Equilátero"},
-                {"p": "Un triángulo con **dos lados iguales** se llama...", "o": ["Isósceles", "Escaleno"], "r": "Isósceles"},
-                {"p": "Un triángulo con **todos los lados diferentes** se llama...", "o": ["Escaleno", "Equilátero"], "r": "Escaleno"},
-                {"p": "¿Qué figura tiene **todos los lados iguales y 4 ángulos rectos**?", "o": ["Cuadrado", "Rectángulo"], "r": "Cuadrado"},
-                {"p": "¿Qué figura tiene **lados opuestos iguales y 4 ángulos rectos**?", "o": ["Rectángulo", "Rombo"], "r": "Rectángulo"},
+                {'p': 'Suma: 123 + 321 = ?', 'o': ['444', '433', '455'], 'r': '444'},
+                {'p': 'Resta: 765 - 432 = ?', 'o': ['333', '323', '343'], 'r': '333'},
+                {'p': 'Multiplicación: 14 × 10 = ?', 'o': ['140', '130', '150'], 'r': '140'},
+                {'p': 'División: 56 ÷ 8 = ?', 'o': ['7', '6', '8'], 'r': '7'},
+                {'p': 'Suma: 456 + 123 = ?', 'o': ['579', '569', '589'], 'r': '579'},
+                {'p': 'Resta: 800 - 345 = ?', 'o': ['455', '465', '445'], 'r': '455'},
+                {'p': 'Multiplicación: 13 × 11 = ?', 'o': ['143', '133', '123'], 'r': '143'},
+                {'p': 'División: 90 ÷ 10 = ?', 'o': ['9', '8', '10'], 'r': '9'},
+                {'p': 'Suma: 234 + 345 = ?', 'o': ['579', '569', '589'], 'r': '579'},
+                {'p': 'Resta: 900 - 567 = ?', 'o': ['333', '323', '343'], 'r': '333'}
             ],
-            [],
-            [],
-        ],
-    },
-
-    "U6": {
-        "titulo": "Medidas",
-        "examenes": [
             [
-                {"p": "¿Cuántos centímetros hay en 1 metro?", "o": ["100", "10"], "r": "100"},
-                {"p": "¿Cuántos metros hay en 1 kilómetro?", "o": ["1000", "100"], "r": "1000"},
-                {"p": "¿Cuántos milímetros hay en 1 centímetro?", "o": ["10", "100"], "r": "10"},
-                {"p": "¿Qué unidad se usa normalmente para medir el peso de una manzana?", "o": ["Gramos", "Kilómetros"], "r": "Gramos"},
-                {"p": "¿Cuál es la unidad más adecuada para medir la distancia entre dos ciudades?", "o": ["Kilómetros", "Centímetros"], "r": "Kilómetros"},
-                {"p": "¿Qué mide el **área**?", "o": ["La superficie", "La suma de los lados"], "r": "La superficie"},
-                {"p": "¿Qué mide el **perímetro**?", "o": ["La suma de los lados", "El espacio interior"], "r": "La suma de los lados"},
-                {"p": "Si un rectángulo mide 6 cm y 3 cm, su perímetro es...", "o": ["18 cm", "9 cm"], "r": "18 cm"},
-                {"p": "Si un cuadrado tiene lado 5 cm, su perímetro es...", "o": ["20 cm", "25 cm"], "r": "20 cm"},
-                {"p": "¿Cuál es el área de un rectángulo de 4 cm por 2 cm?", "o": ["8 cm²", "6 cm²"], "r": "8 cm²"},
-            ],
-            [],
-            [],
-        ],
-    },
-
-    "U7": {
-        "titulo": "Porcentajes",
-        "examenes": [
-            [
-                {"p": "¿Qué significa **50%**?", "o": ["La mitad", "El doble"], "r": "La mitad"},
-                {"p": "¿Qué porcentaje representa **1/4**?", "o": ["25%", "50%"], "r": "25%"},
-                {"p": "¿Qué porcentaje representa **1/2**?", "o": ["50%", "10%"], "r": "50%"},
-                {"p": "¿Cuánto es el **10%** de 200?", "o": ["20", "2"], "r": "20"},
-                {"p": "¿Cuánto es el **50%** de 80?", "o": ["40", "30"], "r": "40"},
-                {"p": "¿Cuánto es el **25%** de 100?", "o": ["25", "20"], "r": "25"},
-                {"p": "¿Cuánto es el **10%** de 50?", "o": ["5", "10"], "r": "5"},
-                {"p": "¿Cuánto es el **50%** de 30?", "o": ["15", "10"], "r": "15"},
-                {"p": "¿Cuánto es el **25%** de 40?", "o": ["10", "25"], "r": "10"},
-                {"p": "Si algo cuesta 60€ y tiene un descuento del 50%, ¿cuánto cuesta ahora?", "o": ["30€", "50€"], "r": "30€"},
-            ],
-            [],
-            [],
-        ],
-    },
-
-    "U8": {
-        "titulo": "Estadística",
-        "examenes": [
-            [
-                {"p": "¿Qué gráfico se usa mucho para comparar cantidades con barras?", "o": ["Gráfico de barras", "Plano cartesiano"], "r": "Gráfico de barras"},
-                {"p": "La **media** es...", "o": ["Sumar y dividir entre la cantidad de datos", "El dato que más se repite"], "r": "Sumar y dividir entre la cantidad de datos"},
-                {"p": "La **moda** es...", "o": ["El dato que más se repite", "El número más grande"], "r": "El dato que más se repite"},
-                {"p": "Si los datos son 2, 4 y 6, la media es...", "o": ["4", "6"], "r": "4"},
-                {"p": "Si los datos son 3, 3, 5 y 7, la moda es...", "o": ["3", "7"], "r": "3"},
-                {"p": "Si los datos son 10 y 20, la media es...", "o": ["15", "20"], "r": "15"},
-                {"p": "¿Para qué sirve un gráfico de barras?", "o": ["Para comparar cantidades", "Para escribir cuentos"], "r": "Para comparar cantidades"},
-                {"p": "Si en una encuesta 8 niños eligen fútbol y 5 baloncesto, ¿qué deporte gana?", "o": ["Fútbol", "Baloncesto"], "r": "Fútbol"},
-                {"p": "Si los datos son 1, 2, 2, 3, 4, la moda es...", "o": ["2", "4"], "r": "2"},
-                {"p": "Si los datos son 5, 5, 5 y 2, la moda es...", "o": ["5", "2"], "r": "5"},
-            ],
-            [],
-            [],
-        ],
-    },
-}
+                {'p': 'Suma: 111 + 222 = ?', 'o': ['333', '332', '344'], 'r': '333'},
+                {'p': 'Resta: 555 - 123 = ?', 'o': ['432', '433', '422'], 'r': '432'},
+                {'p': 'Multiplicación: 11 × 12 = ?', 'o': ['132', '121', '122'], 'r': '132'},
+                {'p': 'División: 72 ÷ 8 = ?', 'o': ['9', '8', '10'], 'r': '9'},
+                {'p': 'Suma: 345 + 456 = ?', 'o': ['801', '800', '802'], 'r': '801'},
+                {'p': 'Resta: 678 - 234 = ?', 'o': ['444', '454', '455'], 'r': '444'},
+                {'p': 'Multiplicación: 10 × 15 = ?', 'o': ['150', '140', '151'], 'r': '150'},
+                {'p': 'División: 81 ÷ 9 = ?', 'o': ['9', '8', '10'], 'r': '9'},
+                {'p': 'Suma: 567 + 234 = ?', 'o': ['801', '811', '791'], 'r': '801'},
+                {'p': 'Resta: 900 - 567 = ?', 'o': ['333', '323', '343'], 'r': '333'}
+            ]
+        ]
+    }
