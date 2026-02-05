@@ -3,14 +3,31 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
 from collections import defaultdict
 import time
+import sys
 
+# =========================
+# TOKEN SEGURO PARA RAILWAY
+# =========================
 TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+if not TOKEN:
+    print("❌ ERROR: TELEGRAM_TOKEN no configurado en Railway")
+    print("1. Railway → Variables")
+    print("2. New Variable: TELEGRAM_TOKEN = tu_token_real")
+    sys.exit(1)
+
+print(f"✅ Token cargado: {TOKEN[:10]}...")
 bot = telebot.TeleBot(TOKEN, parse_mode='Markdown')
 
+# =========================
+# ESTADO USUARIOS
+# =========================
 user_states = defaultdict(lambda: {
     'pregunta_actual': 0, 'aciertos': 0, 'fallos': 0, 'iniciado': False
 })
 
+# =========================
+# PREGUNTAS EXAMEN
+# =========================
 preguntas = [
     {"id": 1, "titulo": "📚 DETERMINANTES POSESIVOS", "pregunta": "¿Qué indican los **determinantes POSSESIVOS**?", "opciones": ["📏 Distancia", "👤 *Pertenencia*", "🔢 Cantidad"], "correcta": 1, "explicacion": "*Mi, tu, su, nuestro...* indican **a quién pertenece** algo.", "emoji": "👨‍👩‍👧‍👦"},
     {"id": 2, "titulo": "🎯 DEMOSTRATIVOS", "pregunta": "¿Cuál es un **DEMONSTRATIVO** de *lejanía*?", "opciones": ["📱 *Este* (cerca)", "📦 Ese (medio)", "🌌 *Aquel* (lejos)"], "correcta": 2, "explicacion": "`Aquel` = **muy lejos**. Ej: *Aquel monte* (allá lejos).", "emoji": "🌠"},
@@ -24,15 +41,42 @@ preguntas = [
     {"id": 10, "titulo": "👑 ARTÍCULO FEMENINO", "pregunta": "¿Cuál es artículo **DETERMINADO** femenino singular?", "opciones": ["Una", "*La*", "Esa"], "correcta": 1, "explicacion": "`La` = **específica**. Ej: *La casa blanca*.", "emoji": "🏛️"}
 ]
 
+# =========================
+# COMANDOS
+# =========================
 @bot.message_handler(commands=['start'])
 def start(message):
     uid = message.from_user.id
     user_states[uid] = {'pregunta_actual': 0, 'aciertos': 0, 'fallos': 0, 'iniciado': True}
     
-    bienvenida = "🎓 **EXAMEN LENGUA - DETERMINANTES** 🎓\n\n⚡ **REGLAS:**\n• 10 preguntas tipo test\n• **1 sola respuesta** por pregunta\n• Explicación detallada inmediata\n• Progreso guardado automáticamente\n\n🚀 **¡Prepárate!** 👇"
+    bienvenida = (
+        "🎓 **EXAMEN LENGUA - DETERMINANTES** 🎓\n\n"
+        "⚡ **REGLAS:**\n"
+        "• 10 preguntas tipo test\n"
+        "• **1 sola respuesta** por pregunta\n"
+        "• Explicación detallada inmediata\n"
+        "• Progreso guardado automáticamente\n\n"
+        "🚀 **¡Prepárate!** 👇"
+    )
     bot.send_message(message.chat.id, bienvenida)
     enviar_pregunta(uid, message.chat.id)
 
+@bot.message_handler(commands=['stats'])
+def stats(message):
+    uid = message.from_user.id
+    if uid in user_states and user_states[uid]['iniciado']:
+        estado = user_states[uid]
+        bot.reply_to(message, 
+            f"📊 **Progreso actual:**\n"
+            f"Pregunta {estado['pregunta_actual']+1}/10\n"
+            f"Aciertos: {estado['aciertos']}/{estado['pregunta_actual']}"
+        )
+    else:
+        bot.reply_to(message, "❓ No has iniciado examen. Usa `/start`")
+
+# =========================
+# LÓGICA EXAMEN
+# =========================
 def enviar_pregunta(uid, chat_id):
     estado = user_states[uid]
     idx = estado['pregunta_actual']
@@ -48,7 +92,12 @@ def enviar_pregunta(uid, chat_id):
     for i, opcion in enumerate(p['opciones']):
         markup.add(InlineKeyboardButton(opcion, callback_data=f"resp_{idx}_{i}"))
     
-    mensaje = f"{p['emoji']} **{p['titulo']}**\n\n{progreso}\n\n📝 {p['pregunta']}\n\n⏰ *Elige tu respuesta* 👇"
+    mensaje = (
+        f"{p['emoji']} **{p['titulo']}**\n\n"
+        f"{progreso}\n\n"
+        f"📝 {p['pregunta']}\n\n"
+        f"⏰ *Elige tu respuesta* 👇"
+    )
     bot.send_message(chat_id, mensaje, reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('resp_'))
@@ -96,19 +145,36 @@ def finalizar_examen(uid, chat_id):
     
     if nota == 10:
         resultado = "🏆 **¡PERFECCIÓN ABSOLUTA!** 🏆\n*¡Eres un experto en determinantes!*"
+        emoji = "🔥"
     elif nota >= 8:
         resultado = "⭐ **¡EXCELENTE!** ⭐\n*¡Dominas los determinantes!*"
+        emoji = "👏"
     elif nota >= 6:
         resultado = "📈 **¡APROBADO!** 📈\n*¡Buen trabajo, sigue así!*"
+        emoji = "👍"
     elif nota >= 4:
         resultado = "⚠️ **RECUPERABLE** ⚠️\n*Repasa los conceptos clave.*"
+        emoji = "💪"
     else:
         resultado = "📚 **A REPASAR** 📚\n*¡Vuelve a estudiar los determinantes!*"
+        emoji = "🔄"
     
-    mensaje_final = f"**RESULTADO FINAL**\n\n✅ **Aciertos:** {estado['aciertos']}/10\n❌ **Fallos:** {estado['fallos']}/10\n📊 **Nota:** {nota}/10\n\n{resultado}\n\n🔄 `/start` para **nuevo examen**"
+    mensaje_final = (
+        f"{emoji} **RESULTADO FINAL**\n\n"
+        f"✅ **Aciertos:** {estado['aciertos']}/10\n"
+        f"❌ **Fallos:** {estado['fallos']}/10\n"
+        f"📊 **Nota:** {nota}/10\n\n"
+        f"{resultado}\n\n"
+        f"🔄 `/start` para **nuevo examen**"
+    )
+    
     bot.send_message(chat_id, mensaje_final)
     del user_states[uid]
 
+# =========================
+# INICIO RAILWAY
+# =========================
 if __name__ == '__main__':
-    print("🤖 Bot examen iniciado...")
-    bot.infinity_polling(none_stop=True)
+    print("🤖 Bot examen LENGUA iniciado correctamente...")
+    print("📚 Tema: DETERMINANTES")
+    bot.infinity_polling(none_stop=True, timeout=30)
