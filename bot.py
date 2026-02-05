@@ -25,7 +25,11 @@ def menu_principal(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
     for id_mat, nombre in MATERIAS_DISPLAY.items():
         markup.add(types.InlineKeyboardButton(nombre, callback_data=f"mat_{id_mat}"))
-    bot.send_message(message.chat.id, "🎓 ¡Hola! Bienvenido al Aula Virtual 📖\n\nElige la materia que quieres repasar:", reply_markup=markup)
+    bot.send_message(
+        message.chat.id,
+        "🎓 ¡Hola! Bienvenido al Aula Virtual 📖\n\nElige la materia que quieres repasar:",
+        reply_markup=markup
+    )
 
 # -------------------- SELECCIÓN DE MATERIA --------------------
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
@@ -37,10 +41,22 @@ def abrir_materia(call):
         temario = modulo.TEMARIO
         markup = types.InlineKeyboardMarkup()
         for uni_id, datos in temario.items():
-            markup.add(types.InlineKeyboardButton(f"{uni_id}: {datos['titulo']}", callback_data=f"uni_{materia_id}_{uni_id}"))
-        bot.edit_message_text(f"📚 Unidades de {MATERIAS_DISPLAY[materia_id]}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
+            markup.add(types.InlineKeyboardButton(
+                f"{uni_id}: {datos['titulo']}",
+                callback_data=f"uni_{materia_id}_{uni_id}"
+            ))
+        bot.edit_message_text(
+            f"📚 Unidades de {MATERIAS_DISPLAY[materia_id]}:",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=markup
+        )
     except Exception:
-        bot.answer_callback_query(call.id, f"❌ No encuentro la variable 'TEMARIO' en el archivo {materia_id}.py.", show_alert=True)
+        bot.answer_callback_query(
+            call.id,
+            f"❌ No encuentro la variable 'TEMARIO' en el archivo {materia_id}.py.",
+            show_alert=True
+        )
 
 # -------------------- SELECCIÓN DE EXAMEN --------------------
 @bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
@@ -48,8 +64,16 @@ def elegir_examen(call):
     _, mat, uni = call.data.split('_')
     markup = types.InlineKeyboardMarkup()
     for i in range(1, 4):
-        markup.add(types.InlineKeyboardButton(f"📝 Examen Tipo {i}", callback_data=f"test_{mat}_{uni}_{i}"))
-    bot.edit_message_text(f"Elige un modelo de examen para la {uni}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
+        markup.add(types.InlineKeyboardButton(
+            f"📝 Examen Tipo {i}",
+            callback_data=f"test_{mat}_{uni}_{i}"
+        ))
+    bot.edit_message_text(
+        f"Elige un modelo de examen para la {uni}:",
+        call.message.chat.id,
+        call.message.message_id,
+        reply_markup=markup
+    )
 
 # -------------------- INICIO DE EXAMEN --------------------
 @bot.callback_query_handler(func=lambda call: call.data.startswith('test_'))
@@ -100,7 +124,7 @@ def procesar_respuesta(call):
 
     datos = user_stats[chat_id]
     pregunta_actual = datos['preguntas'][datos['actual']]
-    datos['respuestas_usuario'].append(call.data.replace("res_", ""))  # Guardamos "si" o "no"
+    datos['respuestas_usuario'].append(call.data.replace("res_", ""))  # "si" o "no"
 
     if call.data == "res_si":
         datos['aciertos'] += 1
@@ -119,13 +143,12 @@ def finalizar_examen(chat_id):
     unidad = datos['unidad']
     examen_num = datos['examen_num']
 
-    # Guardamos resultados reales en estadisticas.py
+    # Guardar resultados reales en estadisticas.py
     respuestas_reales = []
     for idx, preg in enumerate(datos['preguntas']):
         if datos['respuestas_usuario'][idx] == "si":
             respuestas_reales.append(preg['r'])
         else:
-            # Usuario falló, guardamos algo diferente para repaso
             respuestas_reales.append("INCORRECTA")
 
     registrar_resultado(
