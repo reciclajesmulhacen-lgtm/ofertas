@@ -1,4 +1,6 @@
-# ciencias.py
+import random
+
+# TEMARIO SANTILLANA MOCHILA LIGERA 5º
 
 TEMARIO_CIENCIAS = {
     'U1_NAT': {
