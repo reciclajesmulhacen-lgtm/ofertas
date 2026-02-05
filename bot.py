@@ -3,16 +3,11 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
 import time
 
-# Obtención del Token
+# 1. Configuración del Token
 TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-if not TOKEN:
-    print("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-    exit(1)
+bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 
-bot = telebot.TeleBot(TOKEN)
-
-user_states = {}
-
+# 2. Base de datos de preguntas
 preguntas = [
     {"id": 1, "p": "¿Qué indican los POSESIVOS?", "o": ["Distancia", "Pertenencia", "Cantidad"], "c": 1},
     {"id": 2, "p": "DEMOSTRATIVO de lejanía?", "o": ["Este", "Ese", "Aquel"], "c": 2},
@@ -26,68 +21,73 @@ preguntas = [
     {"id": 10, "p": "DETERMINADO fem. singular?", "o": ["Una", "La", "Esa"], "c": 1}
 ]
 
+# Diccionario para estados
+user_states = {}
+
 @bot.message_handler(commands=['start'])
 def start(message):
     uid = str(message.from_user.id)
     user_states[uid] = {'pregunta': 0, 'aciertos': 0}
-    bot.send_message(message.chat.id, "🎓 *EXAMEN DETERMINANTES*\n10 preguntas - ¡Comienza!", parse_mode="Markdown")
-    siguiente_pregunta(uid, message.chat.id)
+    bot.send_message(message.chat.id, "🎓 *EXAMEN DETERMINANTES*\nResponde a las 10 preguntas.", parse_mode="Markdown")
+    enviar_p(uid, message.chat.id)
 
-def siguiente_pregunta(uid, chat_id):
-    if uid not in user_states: return
-    
-    estado = user_states[uid]
-    idx = estado['pregunta']
+def enviar_p(uid, chat_id):
+    idx = user_states[uid]['pregunta']
     
     if idx >= 10:
-        nota = estado['aciertos']
-        bot.send_message(chat_id, f"🏁 *FINALIZADO*\n✅ Aciertos: {nota}/10\n\nUsa /start para repetir.", parse_mode="Markdown")
-        del user_states[uid]
+        nota = user_states[uid]['aciertos']
+        bot.send_message(chat_id, f"🏁 *FINALIZADO*\n✅ Puntuación: {nota}/10\n\nEscribe /start para empezar de nuevo.", parse_mode="Markdown")
         return
-    
+
     p = preguntas[idx]
     markup = InlineKeyboardMarkup(row_width=1)
-    for i, opcion in enumerate(p['o']):
-        # El callback_data guarda "pregunta_respuesta"
-        markup.add(InlineKeyboardButton(opcion, callback_data=f"{idx}_{i}"))
     
-    bot.send_message(chat_id, f"📝 *Pregunta {p['id']}/10*\n\n{p['p']}", reply_markup=markup, parse_mode="Markdown")
+    for i, opcion in enumerate(p['o']):
+        # callback_data simplificado: ej "0-1" (pregunta 0, opción 1)
+        markup.add(InlineKeyboardButton(opcion, callback_data=f"{idx}-{i}"))
+    
+    bot.send_message(chat_id, f"📝 *Pregunta {idx+1}/10*\n\n{p['p']}", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
-def respuesta(call):
+def manejar_respuesta(call):
     uid = str(call.from_user.id)
-    chat_id = call.message.chat.id
     
-    if uid not in user_states: return
-        
-    # CORRECCIÓN AQUÍ: Separamos y convertimos a entero correctamente
+    if uid not in user_states:
+        return
+
+    # Extraemos datos evitando el crash
     try:
-        data_parts = call.data.split('_')
-        idx_pregunta = int(data_parts[0])
-        idx_respuesta = int(data_parts[1])
+        info = call.data.split('-')
+        p_idx = int(info[0])
+        r_idx = int(info[1])
     except:
         return
 
     estado = user_states[uid]
-    
-    # Si la pregunta no es la que toca, ignoramos para evitar fallos
-    if idx_pregunta != estado['pregunta']:
-        bot.answer_callback_query(call.id, "Esa pregunta ya pasó")
+
+    # Evitar respuestas duplicadas
+    if p_idx != estado['pregunta']:
+        bot.answer_callback_query(call.id, "Ya respondiste a esta pregunta.")
         return
-    
-    # Quitamos botones para que no repita
-    bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
-    
-    p = preguntas[idx_pregunta]
-    if idx_respuesta == p['c']:
+
+    # Quitar botones
+    bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+
+    # Lógica de corrección
+    correcta = preguntas[p_idx]['c']
+    if r_idx == correcta:
         estado['aciertos'] += 1
-        bot.send_message(chat_id, "✅ *¡CORRECTO!*", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, "✅ *¡CORRECTO!*", parse_mode="Markdown")
     else:
-        bot.send_message(chat_id, f"❌ *Incorrecto*\nLa buena era: {p['o'][p['c']]}", parse_mode="Markdown")
-    
+        solucion = preguntas[p_idx]['o'][correcta]
+        bot.send_message(call.message.chat.id, f"❌ *Incorrecto*\nLa respuesta era: {solucion}", parse_mode="Markdown")
+
+    # Siguiente pregunta
     estado['pregunta'] += 1
     time.sleep(0.5)
-    siguiente_pregunta(uid, chat_id)
+    enviar_p(uid, call.message.chat.id)
 
-print("Bot en marcha...")
-bot.infinity_polling(timeout=10, long_polling_timeout=5)
+# Arrancar el bot con sistema de autorecuperación
+if __name__ == "__main__":
+    print("Bot activo...")
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
