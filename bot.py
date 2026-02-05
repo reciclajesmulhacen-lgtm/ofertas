@@ -6,7 +6,6 @@ import random
 TOKEN = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
 bot = telebot.TeleBot("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 
-# Nombres que se muestran en los botones del menú principal
 MATERIAS = {
     'lengua': '📚 Lengua',
     'mates': '🔢 Matemáticas',
@@ -15,27 +14,23 @@ MATERIAS = {
     'frances': '🇫🇷 Francés'
 }
 
-# Almacén temporal para seguir el juego de cada usuario
+# Almacén temporal para seguir el juego de cada usuario: {chat_id: {preguntas: [], actual: 0, aciertos: 0, nombre_materia: ''}}
 user_stats = {}
 
 @bot.message_handler(commands=['start', 'menu'])
 def menu_principal(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
-    # Generamos los botones con los nombres bonitos
     for id_mat, nombre in MATERIAS.items():
         markup.add(types.InlineKeyboardButton(nombre, callback_data=f"mat_{id_mat}"))
     bot.send_message(message.chat.id, "¡Hola! Elige materia:", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
 def abrir_materia(call):
-    materia_id = call.data.split('_')[1] # Extrae 'mates', 'frances', etc.
+    materia_id = call.data.split('_')
     try:
-        # Importación dinámica: busca el archivo exacto (ej: mates.py)
         modulo = importlib.import_module(materia_id)
-        importlib.reload(modulo) # Recarga por si actualizas el archivo
-        
-        # Leemos la variable TEMARIO del archivo importado
-        temario = modulo.TEMARIO 
+        importlib.reload(modulo)
+        temario = modulo.TEMARIO
         
         markup = types.InlineKeyboardMarkup()
         for uni_id, datos in temario.items():
@@ -43,8 +38,7 @@ def abrir_materia(call):
         
         bot.edit_message_text(f"Unidades de {MATERIAS[materia_id]}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
     except Exception as e:
-        # Este mensaje de error te dirá exactamente dónde está el fallo
-        bot.answer_callback_query(call.id, f"Error: No puedo leer la variable 'TEMARIO' del archivo {materia_id}.py. Revisa que exista y esté bien escrita.", show_alert=True)
+        bot.answer_callback_query(call.id, f"Error: Revisa que el archivo '{materia_id}.py' exista y tenga la variable 'TEMARIO'.", show_alert=True)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
 def elegir_examen(call):
@@ -56,8 +50,65 @@ def elegir_examen(call):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('test_'))
 def iniciar_test(call):
-    # Aquí iría la lógica para cargar las 10 preguntas y empezar a jugar
-    bot.answer_callback_query(call.id, "¡Perfecto! Ya tienes el motor principal funcionando. Ahora podemos añadir el resto de preguntas.")
-    bot.send_message(call.message.chat.id, "Ahora que el menú funciona, pulsa /menu para volver a la pantalla principal.")
+    _, mat, uni, modelo = call.data.split('_')
+    modulo = importlib.import_module(mat)
+    
+    # Seleccionamos las preguntas del examen específico (0, 1 o 2)
+    preguntas_pool = modulo.TEMARIO[uni]['examenes'][int(modelo)-1]
+    
+    user_stats[call.message.chat.id] = {
+        'preguntas': preguntas_pool,
+        'actual': 0,
+        'aciertos': 0,
+        'nombre_materia': MATERIAS[mat]
+    }
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+    enviar_pregunta(call.message.chat.id)
+
+def enviar_pregunta(chat_id):
+    datos = user_stats[chat_id]
+    if datos['actual'] < len(datos['preguntas']):
+        p = datos['preguntas'][datos['actual']]
+        
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        # Barajamos las opciones para que no siempre sea la A
+        opciones = list(p['o'])
+        random.shuffle(opciones)
+        
+        for opcion in opciones:
+            es_correcta = "si" if opcion == p['r'] else "no"
+            markup.add(types.InlineKeyboardButton(opcion, callback_data=f"res_{es_correcta}"))
+        
+        texto_pregunta = f"📖 **{datos['nombre_materia']}**\n\n❓ **Pregunta {datos['actual'] + 1} de 10:**\n\n{p['p']}"
+        bot.send_message(chat_id, texto_pregunta, reply_markup=markup, parse_mode="Markdown")
+    else:
+        finalizar_examen(chat_id)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('res_'))
+def procesar_respuesta(call):
+    chat_id = call.message.chat.id
+    if chat_id not in user_stats: return
+
+    if call.data == "res_si":
+        user_stats[chat_id]['aciertos'] += 1
+        bot.answer_callback_query(call.id, "¡Muy bien! ✅", show_alert=False)
+    else:
+        bot.answer_callback_query(call.id, "¡Sigue intentando! 💡", show_alert=False)
+
+    bot.delete_message(chat_id, call.message.message_id)
+    user_stats[chat_id]['actual'] += 1
+    enviar_pregunta(chat_id)
+
+def finalizar_examen(chat_id):
+    res = user_stats[chat_id]
+    nota = res['aciertos']
+    total_preguntas = len(res['preguntas'])
+    
+    if nota == total_preguntas: frase = "🏆 ¡PERFECTO! Eres un genio."
+    elif nota >= total_preguntas * 0.7: frase = "🥈 ¡MUY BIEN! Casi lo tienes."
+    else: frase = "💪 ¡No te rindas! Vuelve a repasarlo."
+
+    bot.send_message(chat_id, f"🏁 **¡Examen terminado!**\n\nHas acertado **{nota}** de {total_preguntas} preguntas.\n{frase}\n\nPulsa /menu para volver a jugar.", parse_mode="Markdown")
+    del user_stats[chat_id]
 
 bot.infinity_polling()
