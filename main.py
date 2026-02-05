@@ -1,86 +1,212 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+import os
+from collections import defaultdict
 
+# Configuración
 TOKEN = "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, parse_mode='Markdown')
 
-# Diccionario para guardar el progreso
-user_stats = {}
+# Estado del usuario
+user_states = defaultdict(lambda: {
+    'pregunta_actual': 0,
+    'aciertos': 0,
+    'fallos': 0,
+    'iniciado': False
+})
 
+# Preguntas mejoradas con más contexto
 preguntas = [
-    {"texto": "1. ¿Qué indican los determinantes POSESIVOS?", "opciones": ["Distancia", "Pertenencia", "Cantidad"], "correcta": 1, "explic": "Los posesivos indican a quién pertenece algo (mío, tu, nuestro)."},
-    {"texto": "2. ¿Cuál es un determinante DEMOSTRATIVO de lejanía?", "opciones": ["Este", "Ese", "Aquel"], "correcta": 2, "explic": "'Aquel' se usa para lo que está muy lejos."},
-    {"texto": "3. En 'Unas mesas', ¿qué tipo de artículo es 'Unas'?", "opciones": ["Indeterminado", "Determinado", "Contable"], "correcta": 0, "explic": "Es indeterminado porque no conocemos específicamente las mesas."},
-    {"texto": "4. Los numerales 'primero, segundo, tercero' son...", "opciones": ["Cardinales", "Ordinales", "Posesivos"], "correcta": 1, "explic": "Indican el orden (ordinales)."},
-    {"texto": "5. ¿Cuál es un determinante INDEFINIDO?", "opciones": ["Varios", "Tres", "Los"], "correcta": 0, "explic": "'Varios' indica una cantidad que no es exacta."},
-    {"texto": "6. ¿Qué palabra es un artículo determinado masculino plural?", "opciones": ["Unos", "Los", "Estos"], "correcta": 1, "explic": "'Los' es determinado, masculino y plural."},
-    {"texto": "7. En 'Vuestra casa', 'vuestra' es un posesivo de...", "opciones": ["Un poseedor", "Varios poseedores", "Lejanía"], "correcta": 1, "explic": "Vuestra indica que la casa es de todos vosotros."},
-    {"texto": "8. 'Ese estuche'. ¿Qué distancia indica 'Ese'?", "opciones": ["Cercanía", "Distancia media", "Lejanía"], "correcta": 1, "explic": "Distancia media."},
-    {"texto": "9. ¿Cuál de estos es un numeral CARDINAL?", "opciones": ["Sexto", "Muchos", "Diez"], "correcta": 2, "explic": "Los cardinales son los números naturales (1, 2, 10...)."},
-    {"texto": "10. ¿Cuál es el artículo determinado femenino singular?", "opciones": ["Una", "La", "Esa"], "correcta": 1, "explic": "'La' es el artículo determinado femenino singular."}
+    {
+        "id": 1,
+        "titulo": "📚 DETERMINANTES POSESIVOS",
+        "pregunta": "¿Qué indican los **determinantes POSSESIVOS**?",
+        "opciones": ["📏 Distancia", "👤 *Pertenencia*", "🔢 Cantidad"],
+        "correcta": 1,
+        "explicacion": "*Mi, tu, su, nuestro...* indican **a quién pertenece** algo.",
+        "emoji": "👨‍👩‍👧‍👦"
+    },
+    {
+        "id": 2,
+        "titulo": "🎯 DEMOSTRATIVOS",
+        "pregunta": "¿Cuál es un **DEMONSTRATIVO** de *lejanía*?",
+        "opciones": ["📱 *Este* (cerca)", "📦 Ese (medio)", "🌌 *Aquel* (lejos)"],
+        "correcta": 2,
+        "explicacion": "`Aquel` = **muy lejos**. Ej: *Aquel monte* (allá lejos).",
+        "emoji": "🌠"
+    },
+    {
+        "id": 3,
+        "titulo": "🎭 ARTÍCULOS",
+        "pregunta": "En **'Unas mesas'**, ¿qué tipo de artículo es *'Unas'*?",
+        "opciones": ["*Indeterminado*", "Determinado", "Numeral"],
+        "correcta": 0,
+        "explicacion": "`Unas` **no especifica** cuáles mesas. Es *indeterminado*.",
+        "emoji": "🪑"
+    },
+    {
+        "id": 4,
+        "titulo": "🔢 NUMERALES",
+        "pregunta": "Los numerales **'primero, segundo, tercero'** son...",
+        "opciones": ["Cardinales", "*Ordinales*", "Indefinidos"],
+        "correcta": 1,
+        "explicacion": "Indican **posición/orden**: *primer puesto, segundo lugar*.",
+        "emoji": "🥇🥈🥉"
+    },
+    {
+        "id": 5,
+        "titulo": "❓ INDEFINIDOS",
+        "pregunta": "¿Cuál es un **determinante INDEFINIDO**?",
+        "opciones": ["*Varios*", "Tres", "Los"],
+        "correcta": 0,
+        "explicacion": "`Varios` = **cantidad imprecisa**. Otros: *algunos, pocos*.",
+        "emoji": "🤷"
+    },
+    {
+        "id": 6,
+        "titulo": "⚔️ ARTÍCULOS DETERMINADOS",
+        "pregunta": "¿Cuál es artículo **DETERMINADO** masculino plural?",
+        "opciones": ["Unos", "*Los*", "Estos"],
+        "correcta": 1,
+        "explicacion": "`Los` = **específico**. Ej: *Los libros de la mesa*.",
+        "emoji": "📚"
+    },
+    {
+        "id": 7,
+        "titulo": "👥 POSESIVOS PLURAL",
+        "pregunta": "En **'Vuestra casa'**, *'vuestra'* es posesivo de...",
+        "opciones": ["Un poseedor", "*Varios poseedores*", "Cercanía"],
+        "correcta": 1,
+        "explicacion": "`Vuestra` = **ustedes/vosotros**. Plural de poseedores.",
+        "emoji": "🏠"
+    },
+    {
+        "id": 8,
+        "titulo": "📏 DISTANCIAS",
+        "pregunta": "**'Ese estuche'**. ¿Qué distancia indica *'Ese'*?",
+        "opciones": ["Cercanía", "*Distancia media*", "Lejanía"],
+        "correcta": 1,
+        "explicacion": "`Este`=cerca, `Ese`=medio, `Aquel`=lejos. **Ese=medio**.",
+        "emoji": "📦"
+    },
+    {
+        "id": 9,
+        "titulo": "🧮 CARDINALES vs ORDINALES",
+        "pregunta": "¿Cuál es **numeral CARDINAL**?",
+        "opciones": ["Sexto", "Muchos", "*Diez*"],
+        "correcta": 2,
+        "explicacion": "Cardinal = **cantidad exacta**: *Diez libros*. No orden.",
+        "emoji": "🔟"
+    },
+    {
+        "id": 10,
+        "titulo": "👑 ARTÍCULO FEMENINO",
+        "pregunta": "¿Cuál es artículo **DETERMINADO** femenino singular?",
+        "opciones": ["Una", "*La*", "Esa"],
+        "correcta": 1,
+        "explicacion": "`La` = **específica**. Ej: *La casa blanca*.",
+        "emoji": "🏛️"
+    }
 ]
 
 @bot.message_handler(commands=['start'])
-def iniciar(message):
-    user_stats[message.chat.id] = {"pregunta_actual": 0, "fallos": 0}
-    bot.send_message(message.chat.id, "📝 **Examen Tema 3: Los Determinantes**\nResponde con cuidado, no se puede cambiar la respuesta.")
-    enviar_pregunta(message.chat.id)
-
-def enviar_pregunta(chat_id):
-    idx = user_stats[chat_id]["pregunta_actual"]
+def start(message):
+    uid = message.from_user.id
+    user_states[uid] = {'pregunta_actual': 0, 'aciertos': 0, 'fallos': 0, 'iniciado': True}
     
-    if idx < len(preguntas):
-        p = preguntas[idx]
-        markup = InlineKeyboardMarkup()
-        # Creamos los botones
-        for i, opcion in enumerate(p["opciones"]):
-            # El callback_data ahora es más claro: "pregunta_opcion"
-            markup.add(InlineKeyboardButton(opcion, callback_data=f"{idx}_{i}"))
-        bot.send_message(chat_id, p["texto"], reply_markup=markup)
-    else:
-        finalizar_examen(chat_id)
+    bienvenida = (
+        "🎓 **EXAMEN LENGUA - DETERMINANTES** 🎓\n\n"
+        "⚡ **REGLAS:**\n"
+        "• 10 preguntas tipo test\n"
+        "• **1 sola respuesta** por pregunta\n"
+        "• Explicación detallada inmediata\n"
+        "• Progreso guardado automáticamente\n\n"
+        "🚀 **¡Prepárate!** 👇"
+    )
+    bot.send_message(message.chat.id, bienvenida)
+    enviar_pregunta(uid, message.chat.id)
 
-@bot.callback_query_handler(func=lambda call: True)
-def procesar_respuesta(call):
+def enviar_pregunta(uid, chat_id):
+    estado = user_states[uid]
+    idx = estado['pregunta_actual']
+    
+    if idx >= len(preguntas):
+        finalizar_examen(uid, chat_id)
+        return
+    
+    p = preguntas[idx]
+    estado['pregunta_actual'] = idx
+    
+    # Progreso visual
+    progreso = f"**Pregunta {p['id']}/10** • **{estado['aciertos']}/{idx} aciertos**"
+    
+    markup = InlineKeyboardMarkup(row_width=1)
+    for i, opcion in enumerate(p['opciones']):
+        markup.add(InlineKeyboardButton(opcion, callback_data=f"resp_{idx}_{i}"))
+    
+    mensaje_pregunta = (
+        f"{p['emoji']} **{p['titulo']}**\n\n"
+        f"{progreso}\n\n"
+        f"📝 {p['pregunta']}\n\n"
+        f"⏰ *Elige tu respuesta* 👇"
+    )
+    
+    bot.send_message(chat_id, mensaje_pregunta, reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('resp_'))
+def manejar_respuesta(call):
+    uid = call.from_user.id
     chat_id = call.message.chat.id
     
-    # Extraer los datos del callback (pregunta_opcion)
-    datos = call.data.split('_')
-    idx_pregunta = int(datos[0])
-    idx_respuesta = int(datos[1])
-    
-    # Seguridad: Solo procesar si coincide con la pregunta actual del usuario
-    if idx_pregunta != user_stats[chat_id]["pregunta_actual"]:
+    if uid not in user_states or not user_states[uid]['iniciado']:
+        bot.answer_callback_query(call.id, "🔄 Usa /start para comenzar")
         return
-
-    # 1. Bloqueo: Eliminar botones para que no pueda pulsar más veces
+    
+    # Parsear respuesta
+    _, idx_pregunta, idx_respuesta = call.data.split('_')
+    idx_pregunta = int(idx_pregunta)
+    idx_respuesta = int(idx_respuesta)
+    
+    estado = user_states[uid]
+    
+    # Prevenir respuestas múltiples
+    if idx_pregunta != estado['pregunta_actual']:
+        bot.answer_callback_query(call.id, "✅ Ya respondiste esta pregunta")
+        return
+    
+    # Quitar botones
     bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
     
     p = preguntas[idx_pregunta]
+    correcta = p['correcta']
     
-    # 2. Verificar si es correcta
-    if idx_respuesta == p["correcta"]:
-        res_texto = f"✅ **¡Correcto!**\n{p['explic']}"
+    # Feedback inmediato
+    if idx_respuesta == correcta:
+        estado['aciertos'] += 1
+        feedback = f"🎉 **¡CORRECTO!** 🎉\n\n{p['explicacion']}"
+        bot.answer_callback_query(call.id, "¡Perfecto! ✅")
     else:
-        user_stats[chat_id]["fallos"] += 1
-        res_texto = f"❌ **Incorrecto.**\n{p['explic']}"
+        estado['fallos'] += 1
+        feedback = f"❌ **Incorrecto.**\n\n💡 *Respuesta correcta:*\n{p['opciones'][correcta]}\n\n{p['explicacion']}"
+        bot.answer_callback_query(call.id, "¡Repasa la explicación! 📚")
     
-    bot.send_message(chat_id, res_texto)
+    bot.send_message(chat_id, feedback)
     
-    # 3. Avanzar a la siguiente pregunta
-    user_stats[chat_id]["pregunta_actual"] += 1
-    enviar_pregunta(chat_id)
+    # Siguiente pregunta (con delay para mejor UX)
+    import time
+    time.sleep(1.5)
+    estado['pregunta_actual'] += 1
+    enviar_pregunta(uid, chat_id)
 
-def finalizar_examen(chat_id):
-    fallos = user_stats[chat_id]["fallos"]
-    total = len(preguntas)
-    aciertos = total - fallos
+def finalizar_examen(uid, chat_id):
+    estado = user_states[uid]
+    nota = estado['aciertos']
     
-    mensaje_final = (f"🏁 **¡Examen terminado!**\n\n"
-                     f"✅ Aciertos: {aciertos}\n"
-                     f"❌ Fallos: {fallos}\n"
-                     f"📊 Nota final: {aciertos}/{total}")
-    
-    bot.send_message(chat_id, mensaje_final)
-
-bot.polling()
+    # Calcular resultado
+    if nota == 10:
+        resultado = "🏆 **¡PERFECCIÓN ABSOLUTA!** 🏆\n*¡Eres un experto en determinantes!*"
+        emoji = "🔥"
+    elif nota >= 8:
+        resultado = "⭐ **¡EXCELENTE!** ⭐\n*¡Dominas los determinantes!*"
+        emoji = "👏"
+    elif 
