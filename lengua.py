@@ -1,129 +1,143 @@
-# TEMARIO LENGUA CASTELLANA 5º (Edelvives FanFest)
+# lengua.py
+
 TEMARIO = {
-    'U1_LEN': {
-        'titulo': '¡Por nuestra salud! (G/J y el Párrafo)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Cómo se escriben las palabras que terminan en -aje?', 'o': ['Con J', 'Con G'], 'r': 'Con J'},
-                {'p': '¿Qué signo separa dos párrafos distintos?', 'o': ['Punto y aparte', 'Punto y seguido'], 'r': 'Punto y aparte'},
-                {'p': 'Las palabras que empiezan por eje- se escriben con...', 'o': ['J', 'G'], 'r': 'J'},
-                {'p': '¿Qué es un párrafo?', 'o': ['Conjunto de oraciones sobre una misma idea', 'Una frase corta'], 'r': 'Conjunto de oraciones sobre una misma idea'},
-                {'p': 'Las palabras con gest- como "gestión" llevan...', 'o': ['G', 'J'], 'r': 'G'},
-                {'p': '¿Cómo se escribe "equipa_e"?', 'o': ['Equipaje', 'Equipage'], 'r': 'Equipaje'},
-                {'p': '¿Cuál es la función de un anuncio?', 'o': ['Convencer al receptor', 'Contar un cuento'], 'r': 'Convencer al receptor'},
-                {'p': '¿Cómo se llama la frase corta de un anuncio?', 'o': ['Eslogan', 'Cuerpo'], 'r': 'Eslogan'},
-                {'p': 'Las palabras con geo- llevan...', 'o': ['G', 'J'], 'r': 'G'},
-                {'p': '¿Qué letra falta en "masa_e"?', 'o': ['j', 'g'], 'r': 'j'}
+    "U1": {
+        "titulo": "¡Por nuestra salud!",
+        "examenes": [
+            [
+                {"p": "¿Qué es un **párrafo**?", "o": ["Un conjunto de oraciones que hablan del mismo tema", "Una sola palabra escrita en grande"], "r": "Un conjunto de oraciones que hablan del mismo tema"},
+                {"p": "¿Qué suele tener un texto para separar sus párrafos?", "o": ["Punto y aparte", "Solo comas"], "r": "Punto y aparte"},
+                {"p": "¿Cuál de estas palabras se escribe con **g**?", "o": ["gimnasio", "jimnasio"], "r": "gimnasio"},
+                {"p": "¿Cuál de estas palabras se escribe con **j**?", "o": ["jirafa", "girafa"], "r": "jirafa"},
+                {"p": "¿Qué palabra está bien escrita?", "o": ["general", "jeneral"], "r": "general"},
+                {"p": "¿Qué palabra está bien escrita?", "o": ["juego", "guejo"], "r": "juego"},
+                {"p": "¿Qué es un **anuncio**?", "o": ["Un mensaje que informa o intenta convencer", "Un cuento con personajes"], "r": "Un mensaje que informa o intenta convencer"},
+                {"p": "¿Cuál es el objetivo principal de un anuncio?", "o": ["Llamar la atención y comunicar un mensaje", "Contar una historia larga"], "r": "Llamar la atención y comunicar un mensaje"},
+                {"p": "¿Qué parte de un anuncio suele ser una frase corta y llamativa?", "o": ["El eslogan", "El punto final"], "r": "El eslogan"},
+                {"p": "¿Cuál de estas palabras está bien escrita?", "o": ["gente", "jente"], "r": "gente"},
             ],
-            [], [] # Examen 2 y 3 (vacíos para que el motor no falle)
-        ]
+            [],
+            [],
+        ],
     },
-    'U3_LEN': {
-        'titulo': 'Versoladas (Determinantes)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Qué palabras acompañan al sustantivo para concretarlo?', 'o': ['Determinantes', 'Adjetivos'], 'r': 'Determinantes'},
-                {'p': '¿Cuáles son los artículos determinados?', 'o': ['el, la, los, las', 'un, una'], 'r': 'el, la, los, las'},
-                {'p': '¿Qué indican los posesivos?', 'o': ['Pertenencia', 'Distancia'], 'r': 'Pertenencia'},
-                {'p': '¿"Esa" es un demostrativo de qué distancia?', 'o': ['Media', 'Lejanía'], 'r': 'Media'},
-                {'p': 'En "Nuestros libros", ¿qué es "Nuestros"?', 'o': ['Posesivo', 'Artículo'], 'r': 'Posesivo'},
-                {'p': '¿Los determinantes concuerdan con el nombre?', 'o': ['Sí, en género y número', 'No'], 'r': 'Sí, en género y número'},
-                {'p': '¿Cuál es un demostrativo de lejanía?', 'o': ['Aquel', 'Este'], 'r': 'Aquel'},
-                {'p': '¿Qué artículo se usa para "águila"?', 'o': ['El', 'La'], 'r': 'El'},
-                {'p': '¿"Tus" es un posesivo?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Unas" es un artículo indeterminado?', 'o': ['Sí', 'No'], 'r': 'Sí'}
+
+    "U3": {
+        "titulo": "Versoladas",
+        "examenes": [
+            [
+                {"p": "¿Qué palabra es un **determinante**?", "o": ["mi", "correr"], "r": "mi"},
+                {"p": "¿Qué determinante es **artículo**?", "o": ["el", "rápido"], "r": "el"},
+                {"p": "¿Cuál de estas palabras es un **demostrativo**?", "o": ["este", "comer"], "r": "este"},
+                {"p": "¿Cuál es un determinante **posesivo**?", "o": ["nuestro", "nosotros"], "r": "nuestro"},
+                {"p": "¿Cuál es un determinante **numeral**?", "o": ["tres", "mucho"], "r": "tres"},
+                {"p": "¿Cuál es un determinante **indefinido**?", "o": ["algunos", "ellos"], "r": "algunos"},
+                {"p": "En la frase **“La niña canta”**, ¿qué palabra es el determinante?", "o": ["La", "canta"], "r": "La"},
+                {"p": "En la frase **“Mis amigos juegan”**, ¿qué palabra es el determinante?", "o": ["Mis", "amigos"], "r": "Mis"},
+                {"p": "¿Qué determinante completa mejor: “___ libro es muy divertido”?", "o": ["Ese", "Correr"], "r": "Ese"},
+                {"p": "¿Qué determinante completa mejor: “He comprado ___ lápices”?", "o": ["dos", "ellos"], "r": "dos"},
             ],
-            [], []
-        ]
+            [],
+            [],
+        ],
     },
-    'U4_LEN': {
-        'titulo': 'Manualidades (Numerales e Indefinidos)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Qué numerales indican orden?', 'o': ['Ordinales', 'Cardinales'], 'r': 'Ordinales'},
-                {'p': '¿Qué indican los indefinidos?', 'o': ['Cantidad imprecisa', 'Cantidad exacta'], 'r': 'Cantidad imprecisa'},
-                {'p': '¿Dónde aparecen los materiales?', 'o': ['Lista de materiales', 'Procedimiento'], 'r': 'Lista de materiales'},
-                {'p': '¿"Varios" es un determinante...?', 'o': ['Indefinido', 'Numeral'], 'r': 'Indefinido'},
-                {'p': '¿Cómo se escribe el ordinal de 10?', 'o': ['Décimo', 'Diezavo'], 'r': 'Décimo'},
-                {'p': '¿Qué texto explica pasos?', 'o': ['Instructivo', 'Noticia'], 'r': 'Instructivo'},
-                {'p': '¿Cuál es un numeral cardinal?', 'o': ['Cien', 'Centésimo'], 'r': 'Cien'},
-                {'p': '¿"Pocos" es indefinido?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Primero" es ordinal?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Los verbos de instrucciones están en...?', 'o': ['Imperativo/Infinitivo', 'Pasado'], 'r': 'Imperativo/Infinitivo'}
+
+    "U4": {
+        "titulo": "Canal manualidades",
+        "examenes": [
+            [
+                {"p": "¿Cuál de estas palabras es un determinante **numeral**?", "o": ["cinco", "pocos"], "r": "cinco"},
+                {"p": "¿Cuál de estas palabras es un determinante **indefinido**?", "o": ["muchos", "aquel"], "r": "muchos"},
+                {"p": "¿Qué es un **texto instructivo**?", "o": ["Un texto que explica pasos para hacer algo", "Un texto que cuenta una aventura"], "r": "Un texto que explica pasos para hacer algo"},
+                {"p": "¿Qué palabra se usa mucho en textos instructivos para indicar orden?", "o": ["Primero", "Ayer"], "r": "Primero"},
+                {"p": "¿Cuál es un ejemplo de texto instructivo?", "o": ["Una receta", "Una leyenda"], "r": "Una receta"},
+                {"p": "¿Qué palabra indica una cantidad **no exacta**?", "o": ["varios", "cuatro"], "r": "varios"},
+                {"p": "En la frase “Necesito ___ pegamento”, ¿qué determinante encaja mejor?", "o": ["algo de", "dos"], "r": "algo de"},
+                {"p": "¿Qué determinante completa: “He visto ___ películas este mes”?", "o": ["muchas", "este"], "r": "muchas"},
+                {"p": "En un texto instructivo, ¿qué se suele poner al principio?", "o": ["Los materiales necesarios", "El final de la historia"], "r": "Los materiales necesarios"},
+                {"p": "¿Qué suele aparecer en un texto instructivo?", "o": ["Pasos numerados u ordenados", "Diálogos entre personajes"], "r": "Pasos numerados u ordenados"},
             ],
-            [], []
-        ]
+            [],
+            [],
+        ],
     },
-    'U5_LEN': {
-        'titulo': 'Pasatiempo formal (Preposiciones)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Qué palabra es una preposición?', 'o': ['Desde', 'Pero'], 'r': 'Desde'},
-                {'p': '¿Qué palabra es una conjunción?', 'o': ['Y', 'Hacia'], 'r': 'Y'},
-                {'p': '¿Las preposiciones tienen género?', 'o': ['No', 'Sí'], 'r': 'No'},
-                {'p': '¿"O" es una conjunción?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Qué preposición indica destino?', 'o': ['A', 'De'], 'r': 'A'},
-                {'p': '¿"Pero" es una conjunción?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Cuál NO es preposición?', 'o': ['Porque', 'Contra'], 'r': 'Porque'},
-                {'p': '¿"Hacia" indica dirección?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': 'Completa: Voy __ Madrid', 'o': ['a', 'e'], 'r': 'a'},
-                {'p': '¿"Con" es preposición?', 'o': ['Sí', 'No'], 'r': 'Sí'}
+
+    "U5": {
+        "titulo": "Pasatiempo formal",
+        "examenes": [
+            [
+                {"p": "¿Qué es una **preposición**?", "o": ["Una palabra que une y relaciona otras palabras", "Una palabra que nombra personas"], "r": "Una palabra que une y relaciona otras palabras"},
+                {"p": "¿Cuál de estas palabras es una preposición?", "o": ["entre", "cantar"], "r": "entre"},
+                {"p": "¿Cuál de estas palabras es una preposición?", "o": ["desde", "feliz"], "r": "desde"},
+                {"p": "¿Qué es una **conjunción**?", "o": ["Una palabra que une palabras u oraciones", "Una palabra que describe un nombre"], "r": "Una palabra que une palabras u oraciones"},
+                {"p": "¿Cuál de estas palabras es una conjunción?", "o": ["y", "ayer"], "r": "y"},
+                {"p": "¿Cuál de estas palabras es una conjunción?", "o": ["pero", "mesa"], "r": "pero"},
+                {"p": "En la frase “Voy **a** casa”, la palabra **a** es...", "o": ["Preposición", "Conjunción"], "r": "Preposición"},
+                {"p": "En la frase “Quiero pan **y** leche”, la palabra **y** es...", "o": ["Conjunción", "Preposición"], "r": "Conjunción"},
+                {"p": "¿Qué palabra completa mejor: “Me gusta el fútbol ___ no me gusta el baloncesto”?", "o": ["pero", "entre"], "r": "pero"},
+                {"p": "¿Qué palabra completa mejor: “El gato está ___ la mesa”?", "o": ["debajo de", "y"], "r": "debajo de"},
             ],
-            [], []
-        ]
+            [],
+            [],
+        ],
     },
-    'U6_LEN': {
-        'titulo': 'Aires de leyenda (Verbos)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Qué modo indica orden?', 'o': ['Imperativo', 'Indicativo'], 'r': 'Imperativo'},
-                {'p': '¿"Comeré" está en...?', 'o': ['Futuro', 'Pasado'], 'r': 'Futuro'},
-                {'p': '¿Cuál es el infinitivo de "vivíamos"?', 'o': ['Vivir', 'Vivo'], 'r': 'Vivir'},
-                {'p': '¿El modo indicativo indica hechos reales?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Canté" es pasado?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Cuál es la raíz de "Amaremos"?', 'o': ['Am-', 'Amar-'], 'r': 'Am-'},
-                {'p': '¿El modo subjuntivo indica deseo?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Saltad" es imperativo?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Cuántas conjugaciones hay?', 'o': ['3', '2'], 'r': '3'},
-                {'p': '¿"Ir" es de la 3ª conjugación?', 'o': ['Sí', 'No'], 'r': 'Sí'}
+
+    "U6": {
+        "titulo": "Aires de leyenda",
+        "examenes": [
+            [
+                {"p": "¿Qué es un **verbo**?", "o": ["Una palabra que expresa acciones, estados o procesos", "Una palabra que nombra cosas"], "r": "Una palabra que expresa acciones, estados o procesos"},
+                {"p": "¿En qué tiempo está el verbo en: “Ayer **jugué** al fútbol”?", "o": ["Pasado", "Futuro"], "r": "Pasado"},
+                {"p": "¿En qué tiempo está el verbo en: “Mañana **viajaré**”?", "o": ["Futuro", "Pasado"], "r": "Futuro"},
+                {"p": "¿En qué tiempo está el verbo en: “Ahora **leo** un libro”?", "o": ["Presente", "Pasado"], "r": "Presente"},
+                {"p": "¿Qué modo verbal se usa para dar órdenes: “¡Ven aquí!”?", "o": ["Imperativo", "Indicativo"], "r": "Imperativo"},
+                {"p": "¿Qué modo verbal expresa hechos reales?", "o": ["Indicativo", "Subjuntivo"], "r": "Indicativo"},
+                {"p": "¿Qué modo verbal expresa deseos o posibilidades?", "o": ["Subjuntivo", "Imperativo"], "r": "Subjuntivo"},
+                {"p": "¿Cuál es un verbo en infinitivo?", "o": ["cantar", "canté"], "r": "cantar"},
+                {"p": "¿Cuál es un verbo en presente?", "o": ["comemos", "comeremos"], "r": "comemos"},
+                {"p": "En “Ellos **hablaron** mucho”, el verbo está en...", "o": ["Pasado", "Presente"], "r": "Pasado"},
             ],
-            [], []
-        ]
+            [],
+            [],
+        ],
     },
-    'U7_LEN': {
-        'titulo': 'Voces del mundo (Familia palabras)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Qué es una familia de palabras?', 'o': ['Palabras con misma raíz', 'Palabras que riman'], 'r': 'Palabras con misma raíz'},
-                {'p': '¿Un texto expositivo da información?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': 'Raíz de "panadero":', 'o': ['Pan', 'Pana'], 'r': 'Pan'},
-                {'p': '¿"Florista" es de la familia de "flor"?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Un expositivo debe ser objetivo?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Martillo" es de la familia "mar"?', 'o': ['No', 'Sí'], 'r': 'No'},
-                {'p': '¿"Soleado" es de la familia "sol"?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿Los diccionarios son expositivos?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Librería" es de "libro"?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Submarino" es de "mar"?', 'o': ['Sí', 'No'], 'r': 'Sí'}
+
+    "U7": {
+        "titulo": "Voces del mundo",
+        "examenes": [
+            [
+                {"p": "¿Qué es una **familia de palabras**?", "o": ["Palabras que comparten la misma raíz", "Palabras que riman"], "r": "Palabras que comparten la misma raíz"},
+                {"p": "¿Cuál pertenece a la familia de **pan**?", "o": ["panadero", "pintura"], "r": "panadero"},
+                {"p": "¿Cuál pertenece a la familia de **mar**?", "o": ["marino", "mariposa"], "r": "marino"},
+                {"p": "¿Cuál pertenece a la familia de **flor**?", "o": ["florero", "flotar"], "r": "florero"},
+                {"p": "¿Qué es un **texto expositivo**?", "o": ["Un texto que explica e informa sobre un tema", "Un texto que cuenta una aventura"], "r": "Un texto que explica e informa sobre un tema"},
+                {"p": "¿Cuál es un ejemplo de texto expositivo?", "o": ["Un texto sobre los planetas", "Un cuento de miedo"], "r": "Un texto sobre los planetas"},
+                {"p": "¿Qué se busca en un texto expositivo?", "o": ["Dar información clara", "Hacer reír con chistes"], "r": "Dar información clara"},
+                {"p": "En un texto expositivo, ¿qué suele aparecer?", "o": ["Títulos y subtítulos", "Versos y rimas"], "r": "Títulos y subtítulos"},
+                {"p": "¿Qué palabra pertenece a la familia de **luz**?", "o": ["alumbrar", "lápiz"], "r": "alumbrar"},
+                {"p": "¿Qué palabra pertenece a la familia de **casa**?", "o": ["casita", "casco"], "r": "casita"},
             ],
-            [], []
-        ]
+            [],
+            [],
+        ],
     },
-    'U8_LEN': {
-        'titulo': 'Correspondencia (Pronombres)',
-        'examenes': [
-            [ # Examen 1
-                {'p': '¿Cuál es 1ª persona singular?', 'o': ['Yo', 'Tú'], 'r': 'Yo'},
-                {'p': '¿Sustituyen al nombre?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Nosotros" es plural?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Ella" es 3ª persona?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Ellos" es plural?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Tú" lleva tilde?', 'o': ['Sí, como pronombre', 'No'], 'r': 'Sí, como pronombre'},
-                {'p': '¿"Vosotros" es 2ª persona?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Me, te, se" son pronombres?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Él" es pronombre?', 'o': ['Sí', 'No'], 'r': 'Sí'},
-                {'p': '¿"Usted" es pronombre?', 'o': ['Sí', 'No'], 'r': 'Sí'}
+
+    "U8": {
+        "titulo": "Correspondencia",
+        "examenes": [
+            [
+                {"p": "¿Qué es un **pronombre personal**?", "o": ["Una palabra que sustituye a un nombre", "Una palabra que describe un nombre"], "r": "Una palabra que sustituye a un nombre"},
+                {"p": "¿Cuál de estas palabras es un pronombre personal?", "o": ["nosotros", "bonito"], "r": "nosotros"},
+                {"p": "¿Cuál de estas palabras es un pronombre personal?", "o": ["ella", "mesa"], "r": "ella"},
+                {"p": "¿Cuál de estas palabras es un pronombre personal?", "o": ["tú", "alto"], "r": "tú"},
+                {"p": "En la frase “**Yo** estudio”, ¿qué palabra es el pronombre personal?", "o": ["Yo", "estudio"], "r": "Yo"},
+                {"p": "En la frase “María canta. **Ella** canta bien”, ¿a quién sustituye “Ella”?", "o": ["A María", "A canta"], "r": "A María"},
+                {"p": "¿Cuál es el pronombre personal de **primera persona**?", "o": ["yo", "él"], "r": "yo"},
+                {"p": "¿Cuál es el pronombre personal de **tercera persona**?", "o": ["ellos", "nosotros"], "r": "ellos"},
+                {"p": "¿Qué pronombre completa mejor: “___ vamos al parque”?", "o": ["Nosotros", "Ellos"], "r": "Nosotros"},
+                {"p": "¿Qué pronombre completa mejor: “___ tienes un lápiz”?", "o": ["Tú", "Él"], "r": "Tú"},
             ],
-            [], []
-        ]
-    }
+            [],
+            [],
+        ],
+    },
 }
