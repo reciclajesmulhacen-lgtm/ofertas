@@ -4,13 +4,14 @@ import os
 import urllib.parse
 import re
 import time
+import traceback
 
 # =========================
 # CONFIG - RAILWAY
 # =========================
 TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 if not TOKEN:
-    raise ValueError("TELEGRAM_TOKEN no configurado en variables de entorno")
+    raise ValueError("TELEGRAM_TOKEN no configurado")
 
 bot = telebot.TeleBot(TOKEN, parse_mode='Markdown')
 
@@ -42,29 +43,40 @@ def handle_product_search(message):
         query = message.text.strip()
         
         if len(query) < 2:
-            bot.reply_to(message, "❌ *Producto muy corto*\nEscribe al menos 2 letras.")
+            bot.reply_to(message, 
+                "❌ *Producto muy corto*\n\n"
+                "💡 Escribe al menos 2 letras\n"
+                "`Ejemplo: Samsung Galaxy`"
+            )
             return
 
+        # Limpiar query
         query_clean = re.sub(r'^/[a-zA-Z]+', '', query).strip()
+        if len(query_clean) < 2:
+            return
+
         encoded_query = urllib.parse.quote_plus(query_clean)
         
         status_msg = bot.reply_to(message, "🔍 *Buscando ofertas...* ⏳")
         time.sleep(0.5)
 
+        # Botones de búsqueda
         markup = types.InlineKeyboardMarkup(row_width=1)
         
-        # Botones de búsqueda
         markup.add(
-            types.InlineKeyboardButton("🌐 Google Shopping", url=f"https://www.google.com{encoded_query}"),
-            types.InlineKeyboardButton("🇪🇸 Amazon España", url=f"https://www.amazon.es{encoded_query}"),
-            types.InlineKeyboardButton("🇨🇳 AliExpress", url=f"https://www.aliexpress.com{encoded_query}"),
-            types.InlineKeyboardButton("👗 Vinted", url=f"https://www.vinted.es{encoded_query}"),
-            types.InlineKeyboardButton("🛒 Wallapop", url=f"https://es.wallapop.com{encoded_query}")
+            types.InlineKeyboardButton(
+                "🌐 Google Shopping", 
+                url=f"https://www.google.com/search?tbm=shop&q={encoded_query}"
+            ),
+            types.InlineKeyboardButton(
+                "🇪🇸 Amazon España", 
+                url=f"https://www.amazon.es/s?k={encoded_query}"
+            )
         )
-
-        final_text = (
-            f"✅ *¡Ofertas encontradas!*\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"📦 *Producto:* `{query_clean}`\n\n"
-            f"🛍️ *Elige dónde comparar:*"
-        )
+        markup.add(
+            types.InlineKeyboardButton(
+                "🇨🇳 AliExpress", 
+                url=f"https://www.aliexpress.com/wholesale?SearchText={encoded_query}"
+            ),
+            types.InlineKeyboardButton(
+                "🟦 Bing Shoppi
