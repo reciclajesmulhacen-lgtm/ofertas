@@ -1,13 +1,6 @@
 {
-  "build": {
-    "builder": "python",
-    "startCommand": "gunicorn -w 1 -b 0.0.0.0:$PORT main:app",
-    "pythonVersion": "3.11.9"
-  },
-  "deploy": {
-    "env": {
-      "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U": "",
-      "ofertas-production.up.railway.app": ""
-    }
+  "env": {
+    "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U": "",
+    "ofertas-production.up.railway.app": ""
   }
 }
