@@ -1,5 +1,6 @@
-# mates.py - Santillana 5º Primaria - Bloque 1 (U1-U4)
+import random
 
+# TEMARIO SANTILLANA MOCHILA LIGERA 5º
 TEMARIO = {
     'U1': {
         'titulo': 'Números hasta 1.000.000',
