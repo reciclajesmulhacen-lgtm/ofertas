@@ -7,7 +7,7 @@ import sys
 
 TOKEN = os.getenv("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 if not TOKEN:
-    print("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U"")
+    print("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
     sys.exit(1)
 
 print(f"✅ Bot OK")
