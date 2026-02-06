@@ -1,28 +1,23 @@
 import os
-import importlib
+import importlib.util
+import sys
 import random
 from flask import Flask, request
 import telebot
 from telebot import types
 
 # ===============================
-# ⚠️ Configuración de Variables
+# ⚠️ Configuración
 # ===============================
-# Se recomienda usar os.getenv() para mayor seguridad en producción
-TOKEN = os.environ.get("TELEGRAM_TOKEN", "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
-PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://ofertas-production.up.railway.app")
-PORT = int(os.environ.get("PORT", 5000))
-
-if not TOKEN:
-    raise RuntimeError("ERROR: No se ha configurado el TELEGRAM_TOKEN")
-
-bot = telebot.TeleBot(TOKEN)
+token = os.environ.get("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+bot = telebot.TeleBot(token)
 app = Flask(__name__)
 
-# ===============================
-# 📌 Datos y Persistencia Temporal
-# ===============================
-MATERIAS_DISPLAY = {
+# Datos en memoria (Se pierden al reiniciar)
+user_stats = {} 
+estadisticas = {}
+
+materias_display = {
     'lengua': '📚 Lengua',
     'mates': '🔢 Matemáticas',
     'ciencias': '🧪 Ciencias',
@@ -30,8 +25,9 @@ MATERIAS_DISPLAY = {
     'frances': '🇫🇷 Francés'
 }
 
-user_stats = {} # Estado actual del examen
-estadisticas = {} # Acumulado (Se pierde al reiniciar el servidor)
+# ===============================
+# 🛠️ Funciones de Apoyo
+# ===============================
 
 def registrar_resultado(chat_id, aciertos, fallos):
     if chat_id not in estadisticas:
@@ -40,123 +36,140 @@ def registrar_resultado(chat_id, aciertos, fallos):
     estadisticas[chat_id]['fallos'] += fallos
     estadisticas[chat_id]['intentos'] += 1
 
+def enviar_pregunta(chat_id):
+    datos = user_stats.get(chat_id)
+    idx = datos['indice']
+    pregunta = datos['preguntas'][idx]
+
+    # Botones con las opciones de respuesta
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    for opcion in pregunta['o']:
+        es_correcta = 1 if opcion == pregunta['r'] else 0
+        markup.add(types.InlineKeyboardButton(opcion, callback_data=f"ans_{es_correcta}"))
+    
+    # Botón para volver al menú principal en cualquier momento
+    markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
+
+    bot.send_message(
+        chat_id, 
+        f"📖 *Materia:* {materias_display[datos['materia']]}\n"
+        f"❓ *Pregunta {idx+1}:*\n\n"
+        f"{pregunta['p']}", 
+        reply_markup=markup,
+        parse_mode='Markdown'
+    )
+
 # ===============================
-# 📚 Manejadores (Handlers)
+# 🚀 Handlers (Manejadores)
 # ===============================
+
 @bot.message_handler(commands=['start', 'menu'])
+@bot.callback_query_handler(func=lambda call: call.data == "menu_principal")
 def menu_principal(message):
+    # Detectar si viene de un comando o de un botón de callback
+    chat_id = message.chat.id if hasattr(message, 'chat') else message.message.chat.id
+    
+    # Si el usuario estaba en un examen, lo sacamos de user_stats
+    if chat_id in user_stats:
+        del user_stats[chat_id]
+    
     markup = types.InlineKeyboardMarkup(row_width=2)
-    botones = [types.InlineKeyboardButton(nom, callback_data=f"mat_{idx}") for idx, nom in MATERIAS_DISPLAY.items()]
+    botones = [types.InlineKeyboardButton(nom, callback_data=f"mat_{idx}") for idx, nom in materias_display.items()]
     markup.add(*botones)
-    markup.add(types.InlineKeyboardButton("📊 Mis estadísticas", callback_data="ver_estadisticas"))
-    bot.send_message(message.chat.id, "¡Bienvenido! Selecciona una materia para comenzar:", reply_markup=markup)
+    markup.add(types.InlineKeyboardButton("📊 Mis Estadísticas", callback_data="ver_estadisticas"))
+    
+    texto = "👋 *¡Hola! Bienvenido al Bot de Estudio.*\n\nSelecciona una materia para ponerte a prueba:"
+    bot.send_message(chat_id, texto, reply_markup=markup, parse_mode='Markdown')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
 def abrir_materia(call):
-    materia_id = call.data.split('_')[1]
+    materia_id = call.data.split('_') # Ej: 'mates'
     try:
-        # Carga dinámica del módulo (ej: lengua.py)
-        modulo = importlib.import_module(materia_id)
-        importlib.reload(modulo)
-        temario = modulo.TEMARIO
-
-        markup = types.InlineKeyboardMarkup()
-        for uni_id, datos in temario.items():
-            markup.add(types.InlineKeyboardButton(f"{uni_id}: {datos['titulo']}", callback_data=f"uni_{materia_id}_{uni_id}"))
+        # Carga dinámica del archivo en el mismo directorio
+        spec = importlib.util.spec_from_file_location(materia_id, f"{materia_id}.py")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[materia_id] = module
+        spec.loader.exec_module(module)
         
-        bot.edit_message_text(f"Unidades de {MATERIAS_DISPLAY[materia_id]}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
-    except Exception:
-        bot.answer_callback_query(call.id, f"Error: No se encontró el archivo {materia_id}.py o la variable TEMARIO", show_alert=True)
+        # Extraer preguntas del diccionario TEMARIO (usa 'p', 'o', 'r')
+        temario = getattr(module, "TEMARIO")
+        todas_preguntas = []
+        for u in temario.values():
+            for examen in u['examenes']:
+                todas_preguntas.extend(examen)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('uni_'))
-def elegir_examen(call):
-    _, mat, uni = call.data.split('_')
-    markup = types.InlineKeyboardMarkup()
-    for i in range(1, 4):
-        markup.add(types.InlineKeyboardButton(f"📝 Examen Tipo {i}", callback_data=f"test_{mat}_{uni}_{i}"))
-    bot.edit_message_text(f"Elige un modelo de examen para {uni}:", call.message.chat.id, call.message.message_id, reply_markup=markup)
+        seleccionadas = random.sample(todas_preguntas, min(len(todas_preguntas), 5))
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('test_'))
-def iniciar_test(call):
-    _, mat, uni, modelo = call.data.split('_')
-    modulo = importlib.import_module(mat)
-    preguntas_pool = modulo.TEMARIO[uni]['examenes'][int(modelo)-1]
+        user_stats[call.message.chat.id] = {
+            'materia': materia_id,
+            'preguntas': seleccionadas,
+            'indice': 0, 'aciertos': 0, 'fallos': 0
+        }
+        enviar_pregunta(call.message.chat.id)
 
-    if not preguntas_pool:
-        bot.answer_callback_query(call.id, "⚠️ Este examen no tiene preguntas aún.", show_alert=True)
+    except Exception as e:
+        # Si hay error, da la opción de volver
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 Volver al Menú", callback_data="menu_principal"))
+        bot.send_message(call.message.chat.id, "⚠️ Error al cargar la materia. Inténtalo de nuevo.", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
+def manejar_respuesta(call):
+    chat_id = call.message.chat.id
+    datos = user_stats.get(chat_id)
+    if not datos: 
+        # Si los datos se perdieron, enviamos al menú principal
+        menu_principal(call)
         return
 
-    user_stats[call.message.chat.id] = {
-        'preguntas': preguntas_pool,
-        'actual': 0,
-        'aciertos': 0,
-        'fallos': 0,
-        'nombre_materia': MATERIAS_DISPLAY[mat]
-    }
-    bot.delete_message(call.message.chat.id, call.message.message_id)
-    enviar_pregunta(call.message.chat.id)
-
-def enviar_pregunta(chat_id):
-    datos = user_stats[chat_id]
-    if datos['actual'] < len(datos['preguntas']):
-        p = datos['preguntas'][datos['actual']]
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        opciones = list(p['o'])
-        random.shuffle(opciones)
-        for opcion in opciones:
-            es_correcta = "si" if opcion == p['r'] else "no"
-            markup.add(types.InlineKeyboardButton(opcion, callback_data=f"res_{es_correcta}"))
-        
-        texto = f"📖 *{datos['nombre_materia']}*\n❓ *Pregunta {datos['actual'] + 1}/{len(datos['preguntas'])}:*\n\n{p['p']}"
-        bot.send_message(chat_id, texto, reply_markup=markup, parse_mode="Markdown")
-    else:
-        finalizar_examen(chat_id)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('res_'))
-def procesar_respuesta(call):
-    chat_id = call.message.chat.id
-    if chat_id not in user_stats: return
-    
-    if call.data == "res_si":
-        user_stats[chat_id]['aciertos'] += 1
+    es_correcta = int(call.data.split('_'))
+    if es_correcta:
+        datos['aciertos'] += 1
         bot.answer_callback_query(call.id, "✅ ¡Correcto!")
     else:
-        user_stats[chat_id]['fallos'] += 1
-        bot.answer_callback_query(call.id, "❌ Incorrecto")
+        datos['fallos'] += 1
+        bot.answer_callback_query(call.id, "❌ Incorrecto.")
 
-    bot.delete_message(chat_id, call.message.message_id)
-    user_stats[chat_id]['actual'] += 1
-    enviar_pregunta(chat_id)
+    datos['indice'] += 1
+    if datos['indice'] < len(datos['preguntas']):
+        enviar_pregunta(chat_id)
+    else:
+        # Fin del examen
+        registrar_resultado(chat_id, datos['aciertos'], datos['fallos'])
+        
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
+        
+        resumen = (f"🏁 *¡Examen Finalizado!*\n\n"
+                  f"Materia: {materias_display[datos['materia']]}\n"
+                  f"✅ Aciertos: {datos['aciertos']}\n"
+                  f"❌ Fallos: {datos['fallos']}")
+        
+        bot.send_message(chat_id, resumen, reply_markup=markup, parse_mode='Markdown')
+        del user_stats[chat_id]
 
-def finalizar_examen(chat_id):
-    res = user_stats[chat_id]
-    registrar_resultado(chat_id, res['aciertos'], res['fallos'])
+@bot.callback_query_handler(func=lambda call: call.data == 'ver_estadisticas')
+def ver_estadisticas(call):
+    chat_id = call.message.chat.id
+    s = estadisticas.get(chat_id, {'aciertos': 0, 'fallos': 0, 'intentos': 0})
     
-    texto = f"🏁 *Examen terminado*\n\n✅ Aciertos: {res['aciertos']}\n❌ Fallos: {res['fallos']}\n\nUsa /menu para intentar otro."
-    bot.send_message(chat_id, texto, parse_mode="Markdown")
-    del user_stats[chat_id]
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
+    
+    msg = f"📊 *Tus Estadísticas*\n\n" \
+          f"🔹 Intentos: {s['intentos']}\n" \
+          f"✅ Total Aciertos: {s['aciertos']}\n" \
+          f"❌ Total Fallos: {s['fallos']}"
+    
+    bot.send_message(chat_id, msg, reply_markup=markup, parse_mode='Markdown')
 
-@bot.callback_query_handler(func=lambda call: call.data == "ver_estadisticas")
-def mostrar_estadisticas(call):
-    s = estadisticas.get(call.message.chat.id, {'aciertos': 0, 'fallos': 0, 'intentos': 0})
-    texto = f"📊 *Tus estadísticas:*\n\n✅ Aciertos: {s['aciertos']}\n❌ Fallos: {s['fallos']}\n📝 Exámenes: {s['intentos']}"
-    bot.edit_message_text(texto, call.message.chat.id, call.message.message_id, parse_mode="Markdown")
-
-# ===============================
-# 🔗 Webhook & Flask
-# ===============================
-@app.route(f"/{TOKEN}", methods=['POST'])
-def getMessage():
+# Webhook para Railway
+@app.route(f'/{token}', methods=['POST'])
+def get_message():
     json_string = request.get_data().decode('utf-8')
     update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
 
-@app.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=f"{PUBLIC_URL}/{TOKEN}")
-    return "Bot Online", 200
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT)
+    pass
