@@ -1,7 +1,8 @@
 # lengua.py
+
 TEMARIO = {
     'U1': {
-        'titulo': '¡Por nuestra salud!',
+        'titulo': '¡Por nuestra salud! (Anuncios, G/J)',
         'examenes': [
             [
                 {'p': '¿Qué tipo de texto es un anuncio?', 'o': ['Narrativo', 'Persuasivo', 'Poético'], 'r': 'Persuasivo'},
@@ -42,9 +43,10 @@ TEMARIO = {
         ]
     },
 
-    # ⚠️ U2 no estaba en el temario original, pero la añadimos para que el motor NO se rompa.
+    # U2 no está en tu tabla-resumen, pero FanFest U2 es "Arte sonoro" (adverbios, descripciones, polisemia, coma).[web:243]
+    # Aquí la dejamos como repaso general/comprensión para no romper el bot.
     'U2': {
-        'titulo': 'Repaso y comprensión lectora',
+        'titulo': 'Arte sonoro (Repaso y comprensión)',
         'examenes': [
             [
                 {'p': '¿Qué es un párrafo?', 'o': ['Un grupo de oraciones sobre una idea', 'Una palabra suelta', 'Una letra'], 'r': 'Un grupo de oraciones sobre una idea'},
@@ -128,173 +130,215 @@ TEMARIO = {
     }
 }
 
-# lengua.py - Unidades U4 a U8 completas
+# Unidades U4–U8 según FanFest 5 [web:243]
 TEMARIO.update({
     'U4': {
-        'titulo': 'Canal manualidades',
+        'titulo': 'Canal manualidades (Determinantes numerales e indefinidos, instructivos)',
         'examenes': [
-            [   # Examen 1
-                {'p': '¿Qué tipo de palabras indican cantidad aproximada?', 'o': ['Indefinidos', 'Determinantes', 'Pronombres'], 'r': 'Indefinidos'},
-                {'p': '¿Cuál es la función de un instructivo?', 'o': ['Dar pasos para realizar algo', 'Contar una historia', 'Expresar opinión'], 'r': 'Dar pasos para realizar algo'},
-                {'p': 'Escribe la forma correcta: "Hecho ____ la tarea"', 'o': ['de', 'con', 'para'], 'r': 'de'},
+            [
+                {'p': '¿Qué tipo de palabras indican cantidad aproximada?', 'o': ['Indefinidos', 'Pronombres', 'Adjetivos'], 'r': 'Indefinidos'},
+                {'p': '¿Cuál es la función de un texto instructivo?', 'o': ['Dar pasos para realizar algo', 'Contar una historia', 'Describir un lugar'], 'r': 'Dar pasos para realizar algo'},
                 {'p': 'Selecciona el numeral que indica orden: primero, segundo...', 'o': ['Ordinales', 'Cardinales', 'Indefinidos'], 'r': 'Ordinales'},
                 {'p': 'Palabra que indica un número exacto', 'o': ['Cardinal', 'Indefinido', 'Ordinal'], 'r': 'Cardinal'},
-                {'p': 'Oración correcta para instrucciones', 'o': ['Corta la hoja con cuidado', 'La hoja está cortada', 'Me gusta cortar hojas'], 'r': 'Corta la hoja con cuidado'},
-                {'p': 'Tipo de palabra que indica “algunos”', 'o': ['Indefinido', 'Determinante', 'Pronombre'], 'r': 'Indefinido'},
-                {'p': 'Completa: “Para hacer el collage, necesitas ___ tijeras y pegamento”', 'o': ['unas', 'unos', 'la'], 'r': 'unas'},
-                {'p': 'Numeral cardinal de 7', 'o': ['Siete', 'Séptimo', 'Varias'], 'r': 'Siete'},
-                {'p': 'Selecciona el uso correcto de un instructivo', 'o': ['Seguir pasos para manualidades', 'Contar la historia de un libro', 'Dar tu opinión sobre un dibujo'], 'r': 'Seguir pasos para manualidades'}
+                {'p': '¿Cuál es un numeral cardinal?', 'o': ['tres', 'tercero', 'algunos'], 'r': 'tres'},
+                {'p': 'Completa: "He pegado ___ fotos en la cartulina"', 'o': ['tres', 'varias', 'primera'], 'r': 'tres'},
+                {'p': 'Tipo de palabra que indica “algunos”', 'o': ['Indefinido', 'Cardinal', 'Ordinal'], 'r': 'Indefinido'},
+                {'p': 'Completa: "Para el experimento necesito ___ vasos de agua"', 'o': ['dos', 'primero', 'algunos'], 'r': 'dos'},
+                {'p': '¿Qué indica un numeral ordinal?', 'o': ['Orden o posición', 'Cantidad aproximada', 'Cantidad exacta'], 'r': 'Orden o posición'},
+                {'p': 'Instrucción bien escrita', 'o': ['Recorta las figuras con cuidado', 'Las figuras están recortadas', 'Me gusta recortar'], 'r': 'Recorta las figuras con cuidado'}
             ],
-            [   # Examen 2
-                {'p': 'Tipo de numeral de “primero”', 'o': ['Ordinal', 'Cardinal', 'Indefinido'], 'r': 'Ordinal'},
-                {'p': 'Palabra que indica cantidad exacta', 'o': ['Cardinal', 'Ordinal', 'Indefinido'], 'r': 'Cardinal'},
-                {'p': 'Instrucción correcta: cortar papel', 'o': ['Corta el papel con tijeras', 'El papel se corta solo', 'Me gusta cortar papel'], 'r': 'Corta el papel con tijeras'},
-                {'p': 'Indefinido que indica pocos', 'o': ['Algunos', 'Todos', 'Tres'], 'r': 'Algunos'},
-                {'p': 'Ordinal de 5', 'o': ['Quinto', 'Cinco', 'Varias'], 'r': 'Quinto'},
-                {'p': 'Completa: “____ materiales necesitas para el proyecto?”', 'o': ['Qué', 'Cuántos', 'Cómo'], 'r': 'Qué'},
-                {'p': 'Usos de los numerales cardinales', 'o': ['Indican cantidad exacta', 'Indican posición', 'Indican instrucciones'], 'r': 'Indican cantidad exacta'},
-                {'p': 'Selecciona la instrucción clara', 'o': ['Pinta la hoja de azul', 'La hoja es azul', 'Me gusta pintar'], 'r': 'Pinta la hoja de azul'},
-                {'p': 'Palabra indefinida de cantidad', 'o': ['Varios', 'Dos', 'Primero'], 'r': 'Varios'},
-                {'p': '¿Qué indica un numeral ordinal?', 'o': ['Orden o posición', 'Cantidad exacta', 'Cantidad aproximada'], 'r': 'Orden o posición'}
+            [
+                {'p': 'Ordinal de 5', 'o': ['quinto', 'cinco', 'varios'], 'r': 'quinto'},
+                {'p': 'Cardinal de la cantidad 7', 'o': ['siete', 'séptimo', 'algunos'], 'r': 'siete'},
+                {'p': 'Completa: "Pega ___ trozos de papel de colores"', 'o': ['varios', 'primero', 'tres'], 'r': 'varios'},
+                {'p': '¿Qué tipo de texto explica pasos a seguir?', 'o': ['Instructivo', 'Narrativo', 'Poético'], 'r': 'Instructivo'},
+                {'p': 'Completa: "Colorea las piezas en el ___ paso"', 'o': ['segundo', 'dos', 'varios'], 'r': 'segundo'},
+                {'p': '¿Cuál es un indefinido?', 'o': ['muchos', 'tres', 'quinto'], 'r': 'muchos'},
+                {'p': 'Completa: "En la receta usamos ___ huevos"', 'o': ['tres', 'tercero', 'varios'], 'r': 'tres'},
+                {'p': 'Instrucción clara para un vídeo-tutorial', 'o': ['Primero, enciende la cámara', 'Me gustan los vídeos', 'El vídeo es bonito'], 'r': 'Primero, enciende la cámara'},
+                {'p': '¿Qué tipo de determinante es "dos"?', 'o': ['Numeral cardinal', 'Numeral ordinal', 'Indefinido'], 'r': 'Numeral cardinal'},
+                {'p': '¿Qué tipo de determinante es "varios"?', 'o': ['Indefinido', 'Numeral cardinal', 'Demostrativo'], 'r': 'Indefinido'}
             ],
-            [   # Examen 3
-                {'p': 'Completa: “Necesito ____ tijeras para cortar”', 'o': ['unas', 'los', 'algunas'], 'r': 'unas'},
-                {'p': 'Tipo de palabra que indica cantidad aproximada', 'o': ['Indefinido', 'Cardinal', 'Ordinal'], 'r': 'Indefinido'},
-                {'p': 'Función principal de un instructivo', 'o': ['Indicar cómo hacer algo', 'Dar opinión', 'Contar una historia'], 'r': 'Indicar cómo hacer algo'},
-                {'p': 'Ordinal de 3', 'o': ['Tercero', 'Tres', 'Algunos'], 'r': 'Tercero'},
-                {'p': 'Numeral cardinal de 4', 'o': ['Cuatro', 'Cuarto', 'Pocos'], 'r': 'Cuatro'},
-                {'p': 'Selecciona instrucción correcta', 'o': ['Dobla el papel a la mitad', 'El papel está doblado', 'Me gusta doblar papel'], 'r': 'Dobla el papel a la mitad'},
-                {'p': 'Indefinido de cantidad grande', 'o': ['Muchos', 'Dos', 'Primero'], 'r': 'Muchos'},
-                {'p': 'Usos de numerales ordinales', 'o': ['Indican posición', 'Indican cantidad exacta', 'Dan instrucciones'], 'r': 'Indican posición'},
-                {'p': 'Completa: “Para la manualidad necesito ____ pegamento”', 'o': ['un poco de', 'mucho', 'tres'], 'r': 'un poco de'},
-                {'p': 'Selecciona el numeral cardinal', 'o': ['Siete', 'Séptimo', 'Algunos'], 'r': 'Siete'}
+            [
+                {'p': 'Completa: "Corta la cartulina en ___ partes iguales"', 'o': ['cuatro', 'cuartos', 'varios'], 'r': 'cuatro'},
+                {'p': 'Completa: "En el ___ paso pegamos las fotos"', 'o': ['tercer', 'tres', 'algunos'], 'r': 'tercer'},
+                {'p': '¿Qué palabra indica cantidad aproximada?', 'o': ['algunos', 'dos', 'segundo'], 'r': 'algunos'},
+                {'p': '¿Qué tipo de texto es una receta de cocina?', 'o': ['Instructivo', 'Lírico', 'Teatral'], 'r': 'Instructivo'},
+                {'p': 'Completa: "He usado ___ colores diferentes"', 'o': ['muchos', 'cuatro', 'segundo'], 'r': 'muchos'},
+                {'p': '¿Qué tipo de determinante es "primero"?', 'o': ['Numeral ordinal', 'Numeral cardinal', 'Indefinido'], 'r': 'Numeral ordinal'},
+                {'p': 'Completa: "Para la manualidad necesito ___ pegamento"', 'o': ['un poco de', 'tres', 'quinto'], 'r': 'un poco de'},
+                {'p': '¿Qué indica un numeral cardinal?', 'o': ['Cantidad exacta', 'Orden', 'Lugar'], 'r': 'Cantidad exacta'},
+                {'p': 'Instrucción correcta', 'o': ['Dobla la hoja por la mitad', 'La hoja está doblada', 'Me gusta doblar hojas'], 'r': 'Dobla la hoja por la mitad'},
+                {'p': 'Selecciona el numeral cardinal', 'o': ['cuatro', 'cuarto', 'varios'], 'r': 'cuatro'}
             ]
         ]
     },
+
     'U5': {
-        'titulo': 'Pasatiempo formal',
+        'titulo': 'Pasatiempo formal (Preposiciones, conjunciones, interjecciones)',
         'examenes': [
             [
-                {'p': 'Selecciona la conjunción correcta: “Estudio mucho ____ apruebo los exámenes”', 'o': ['y', 'pero', 'porque'], 'r': 'y'},
+                {'p': 'Selecciona la conjunción correcta: "Estudio mucho ____ apruebo los exámenes"', 'o': ['y', 'pero', 'porque'], 'r': 'y'},
                 {'p': 'Preposición que indica dirección', 'o': ['hacia', 'sobre', 'en'], 'r': 'hacia'},
-                {'p': 'Completa: “Voy ___ el parque”', 'o': ['al', 'a', 'en'], 'r': 'al'},
+                {'p': 'Completa: "Voy ___ el parque"', 'o': ['al', 'a', 'en'], 'r': 'al'},
                 {'p': 'Conjunción que une ideas contrarias', 'o': ['pero', 'y', 'o'], 'r': 'pero'},
-                {'p': 'Selecciona la preposición correcta: “El libro está ___ la mesa”', 'o': ['sobre', 'hacia', 'entre'], 'r': 'sobre'},
-                {'p': 'Completa: “Caminamos ___ la escuela”', 'o': ['hacia', 'sobre', 'en'], 'r': 'hacia'},
+                {'p': 'Selecciona la preposición correcta: "El libro está ___ la mesa"', 'o': ['sobre', 'hacia', 'entre'], 'r': 'sobre'},
                 {'p': 'Conjunción que indica causa', 'o': ['porque', 'pero', 'y'], 'r': 'porque'},
-                {'p': 'Selecciona la preposición correcta: “El regalo está ___ la caja”', 'o': ['dentro de', 'sobre', 'al lado'], 'r': 'dentro de'},
-                {'p': 'Completa: “Estudio mucho, ____ apruebo”', 'o': ['y', 'porque', 'pero'], 'r': 'y'},
-                {'p': 'Conjunción que une palabras similares', 'o': ['y', 'o', 'pero'], 'r': 'y'}
+                {'p': '¿Cuál es una interjección?', 'o': ['¡Ay!', 'porque', 'sobre'], 'r': '¡Ay!'},
+                {'p': 'Completa: "Caminamos ___ la escuela"', 'o': ['hacia', 'sobre', 'en'], 'r': 'hacia'},
+                {'p': 'Selecciona la conjunción que une palabras similares', 'o': ['y', 'o', 'pero'], 'r': 'y'},
+                {'p': 'Preposición de lugar: "El gato está ___ la silla"', 'o': ['debajo de', 'porque', 'y'], 'r': 'debajo de'}
             ],
             [
-                {'p': 'Completa: “Voy ___ casa de mi abuela”', 'o': ['a', 'al', 'en'], 'r': 'a'},
+                {'p': 'Completa: "Voy ___ casa de mi abuela"', 'o': ['a', 'al', 'en'], 'r': 'a'},
                 {'p': 'Conjunción que indica alternativa', 'o': ['o', 'y', 'pero'], 'r': 'o'},
-                {'p': 'Selecciona la preposición correcta: “El cuaderno está ___ la mochila”', 'o': ['dentro de', 'sobre', 'debajo de'], 'r': 'dentro de'},
+                {'p': 'Selecciona la preposición correcta: "El cuaderno está ___ la mochila"', 'o': ['dentro de', 'sobre', 'delante de'], 'r': 'dentro de'},
                 {'p': 'Conjunción que indica oposición', 'o': ['pero', 'porque', 'y'], 'r': 'pero'},
-                {'p': 'Completa: “Salgo ___ el colegio”', 'o': ['del', 'de', 'en'], 'r': 'del'},
-                {'p': 'Selecciona la preposición de tiempo: “Llegamos ___ la tarde”', 'o': ['por', 'en', 'a'], 'r': 'en'},
-                {'p': 'Conjunción de causa: “No fui a clase ___ estaba enfermo”', 'o': ['porque', 'y', 'pero'], 'r': 'porque'},
-                {'p': 'Completa: “Estudio mucho, ____ saco buenas notas”', 'o': ['y', 'pero', 'o'], 'r': 'y'},
-                {'p': 'Selecciona la preposición correcta: “El gato está ___ la silla”', 'o': ['debajo de', 'sobre', 'dentro de'], 'r': 'debajo de'},
-                {'p': 'Conjunción que une ideas similares', 'o': ['y', 'pero', 'porque'], 'r': 'y'}
+                {'p': 'Preposición de tiempo: "Llegamos ___ la tarde"', 'o': ['por', 'en', 'a'], 'r': 'por'},
+                {'p': '¿Cuál es una interjección de sorpresa?', 'o': ['¡Oh!', 'hacia', 'porque'], 'r': '¡Oh!'},
+                {'p': 'Completa: "Salgo ___ el colegio"', 'o': ['del', 'de', 'en'], 'r': 'del'},
+                {'p': 'Conjunción de causa: "No fui a clase ___ estaba enfermo"', 'o': ['porque', 'y', 'pero'], 'r': 'porque'},
+                {'p': 'Completa: "Estudio mucho, ____ saco buenas notas"', 'o': ['y', 'pero', 'o'], 'r': 'y'},
+                {'p': 'Preposición correcta: "El regalo está ___ la caja"', 'o': ['dentro de', 'sobre', 'encima de'], 'r': 'dentro de'}
             ],
             [
-                {'p': 'Completa: “Voy ___ la biblioteca”', 'o': ['a', 'al', 'en'], 'r': 'a'},
+                {'p': 'Completa: "Vamos ___ el parque"', 'o': ['hacia', 'en', 'sobre'], 'r': 'hacia'},
                 {'p': 'Conjunción que indica consecuencia', 'o': ['por lo tanto', 'pero', 'y'], 'r': 'por lo tanto'},
-                {'p': 'Selecciona la preposición correcta: “El lápiz está ___ la mesa”', 'o': ['sobre', 'en', 'bajo'], 'r': 'sobre'},
-                {'p': 'Conjunción de contraste: “Estudié mucho, ____ no aprobé”', 'o': ['pero', 'porque', 'y'], 'r': 'pero'},
-                {'p': 'Completa: “Salimos ___ la calle principal”', 'o': ['por', 'a', 'hacia'], 'r': 'por'},
-                {'p': 'Preposición de lugar: “El perro duerme ___ la cama”', 'o': ['en', 'sobre', 'bajo'], 'r': 'en'},
-                {'p': 'Conjunción que indica causa: “No vino a clase ___ estaba enfermo”', 'o': ['porque', 'pero', 'y'], 'r': 'porque'},
-                {'p': 'Completa: “Estudia mucho, ____ obtiene buenas calificaciones”', 'o': ['y', 'pero', 'porque'], 'r': 'y'},
-                {'p': 'Preposición que indica movimiento: “Vamos ___ el parque”', 'o': ['hacia', 'en', 'sobre'], 'r': 'hacia'},
-                {'p': 'Conjunción que une palabras: “Pan ___ mantequilla”', 'o': ['y', 'pero', 'porque'], 'r': 'y'}
+                {'p': 'Preposición de lugar: "El perro duerme ___ la cama"', 'o': ['en', 'sobre', 'bajo'], 'r': 'en'},
+                {'p': 'Conjunción de contraste: "Estudié mucho, ____ no aprobé"', 'o': ['pero', 'porque', 'y'], 'r': 'pero'},
+                {'p': '¿Cuál es una interjección de alegría?', 'o': ['¡Hurra!', 'porque', 'entre'], 'r': '¡Hurra!'},
+                {'p': 'Completa: "Salimos ___ la calle principal"', 'o': ['por', 'a', 'hacia'], 'r': 'por'},
+                {'p': 'Conjunción que une palabras: "Pan ___ mantequilla"', 'o': ['y', 'pero', 'porque'], 'r': 'y'},
+                {'p': 'Preposición correcta: "El lápiz está ___ la mesa"', 'o': ['sobre', 'de', 'por'], 'r': 'sobre'},
+                {'p': 'Conjunción que indica elección', 'o': ['o', 'y', 'porque'], 'r': 'o'},
+                {'p': 'Preposición que indica origen: "Viene ___ Granada"', 'o': ['de', 'a', 'en'], 'r': 'de'}
+            ]
+        ]
+    },
+
+    'U6': {
+        'titulo': 'Aires de leyenda (El verbo, formas verbales)',
+        'examenes': [
+            [
+                {'p': '¿Qué es un verbo?', 'o': ['Una acción o estado', 'Un objeto', 'Una cualidad'], 'r': 'Una acción o estado'},
+                {'p': 'Selecciona el verbo en esta oración: "Luis corre rápido"', 'o': ['Luis', 'corre', 'rápido'], 'r': 'corre'},
+                {'p': 'Completa: "Mañana nosotros ___ al cine"', 'o': ['iremos', 'iremosos', 'voy'], 'r': 'iremos'},
+                {'p': '¿En qué tiempo está el verbo?: "Yo canté"', 'o': ['Pasado', 'Presente', 'Futuro'], 'r': 'Pasado'},
+                {'p': '¿En qué persona está "nosotros jugamos"?', 'o': ['1.ª persona del plural', '2.ª del singular', '3.ª del plural'], 'r': '1.ª persona del plural'},
+                {'p': 'Completa: "Ellos ___ una leyenda"', 'o': ['cuentan', 'cuenta', 'contamos'], 'r': 'cuentan'},
+                {'p': 'Infinitivo de "corremos"', 'o': ['correr', 'corriendo', 'corrío'], 'r': 'correr'},
+                {'p': '¿Cuál es un verbo en infinitivo?', 'o': ['saltar', 'salté', 'salta'], 'r': 'saltar'},
+                {'p': 'Completa: "Yo ___ un cuento de miedo"', 'o': ['leo', 'lees', 'leemos'], 'r': 'leo'},
+                {'p': 'Verbo en futuro: ', 'o': ['viajaré', 'viajé', 'viajo'], 'r': 'viajaré'}
+            ],
+            [
+                {'p': '¿Qué parte del verbo cambia según la persona y tiempo?', 'o': ['Desinencia', 'Raíz', 'Sustantivo'], 'r': 'Desinencia'},
+                {'p': '¿Cuál es la raíz de "cantamos"?', 'o': ['cant-', 'amos', 'canta'], 'r': 'cant-'},
+                {'p': 'Verbo en presente: ', 'o': ['corro', 'corrí', 'correré'], 'r': 'corro'},
+                {'p': 'Completa: "Tú ___ muy rápido"', 'o': ['corres', 'corro', 'corren'], 'r': 'corres'},
+                {'p': '¿En qué tiempo está "viviremos"?', 'o': ['Futuro', 'Presente', 'Pasado'], 'r': 'Futuro'},
+                {'p': '¿En qué persona está "él juega"?', 'o': ['3.ª del singular', '1.ª del plural', '2.ª del singular'], 'r': '3.ª del singular'},
+                {'p': 'Infinitivo de "miraron"', 'o': ['mirar', 'mirando', 'mirado'], 'r': 'mirar'},
+                {'p': 'Completa: "Nosotros ___ una leyenda esta noche"', 'o': ['leeremos', 'leo', 'lees'], 'r': 'leeremos'},
+                {'p': 'Verbo en pasado: ', 'o': ['comí', 'como', 'comeré'], 'r': 'comí'},
+                {'p': '¿Cuál es un verbo?', 'o': ['nadar', 'nube', 'alto'], 'r': 'nadar'}
+            ],
+            [
+                {'p': 'Completa: "Ellas ___ a la puerta del castillo"', 'o': ['llamaron', 'llaman', 'llamarán'], 'r': 'llamaron'},
+                {'p': '¿Qué es el tiempo verbal?', 'o': ['Momento de la acción', 'Lugar de la acción', 'Personaje'], 'r': 'Momento de la acción'},
+                {'p': '¿En qué tiempo está "yo escribo"?', 'o': ['Presente', 'Pasado', 'Futuro'], 'r': 'Presente'},
+                {'p': 'Verbo en 3.ª persona plural', 'o': ['cantan', 'cantas', 'canto'], 'r': 'cantan'},
+                {'p': 'Completa: "Nosotros ___ la leyenda del dragón"', 'o': ['contamos', 'contáis', 'contaré'], 'r': 'contamos'},
+                {'p': 'Infinitivo de "soñaban"', 'o': ['soñar', 'soñado', 'soñó'], 'r': 'soñar'},
+                {'p': 'Verbo en futuro: ', 'o': ['leeré', 'leí', 'leo'], 'r': 'leeré'},
+                {'p': 'Completa: "Ella ___ muchas historias"', 'o': ['conoce', 'conocen', 'conoces'], 'r': 'conoce'},
+                {'p': '¿Qué indica la persona verbal?', 'o': ['Quién realiza la acción', 'Dónde ocurre', 'Cuándo ocurre'], 'r': 'Quién realiza la acción'},
+                {'p': '¿Cuál es un verbo relacionado con leyendas?', 'o': ['contar', 'castillo', 'héroe'], 'r': 'contar'}
+            ]
+        ]
+    },
+
+    'U7': {
+        'titulo': 'Voces del mundo (Familia de palabras, textos expositivos, lenguas)',
+        'examenes': [
+            [
+                {'p': '¿Qué es una familia de palabras?', 'o': ['Palabras con la misma raíz', 'Palabras de otro idioma', 'Palabras inventadas'], 'r': 'Palabras con la misma raíz'},
+                {'p': '¿Cuál NO pertenece a la familia de "mar"?', 'o': ['marino', 'marinero', 'mariposa'], 'r': 'mariposa'},
+                {'p': 'Familia de palabras de "pan":', 'o': ['pan, panadero, panadería', 'pan, mano, panda', 'pan, pena, pana'], 'r': 'pan, panadero, panadería'},
+                {'p': '¿Qué es un texto expositivo?', 'o': ['Un texto que explica', 'Un texto que convence', 'Un texto que cuenta una historia'], 'r': 'Un texto que explica'},
+                {'p': 'Completa: "El español, el francés y el inglés son..."', 'o': ['lenguas', 'países', 'personas'], 'r': 'lenguas'},
+                {'p': '¿Qué es un dialecto?', 'o': ['Variedad de una lengua', 'Idioma inventado', 'Lengua secreta'], 'r': 'Variedad de una lengua'},
+                {'p': '¿Qué lengua se habla en España?', 'o': ['Castellano', 'Chino', 'Japonés'], 'r': 'Castellano'},
+                {'p': '¿Qué lengua se usa en los signos para personas sordas?', 'o': ['Lengua de signos', 'Lengua musical', 'Lengua antigua'], 'r': 'Lengua de signos'},
+                {'p': '¿Qué hace un texto expositivo?', 'o': ['Explica un tema', 'Cuenta una leyenda', 'Vende un producto'], 'r': 'Explica un tema'},
+                {'p': '¿Qué palabra pertenece a la familia de "flor"?', 'o': ['florero', 'flotar', 'flaco'], 'r': 'florero'}
+            ],
+            [
+                {'p': '¿Cuál pertenece a la familia de "sol"?', 'o': ['soleado', 'silla', 'sal'], 'r': 'soleado'},
+                {'p': '¿Qué es la raíz de una palabra?', 'o': ['La parte que no cambia', 'El final', 'La tilde'], 'r': 'La parte que no cambia'},
+                {'p': 'Familia de "luz":', 'o': ['luz, luminoso, alumbrar', 'luz, luna, loma', 'luz, lujo, lucha'], 'r': 'luz, luminoso, alumbrar'},
+                {'p': 'Un texto expositivo sirve para...', 'o': ['informar', 'asustar', 'reír'], 'r': 'informar'},
+                {'p': '¿Qué es una lengua?', 'o': ['Un sistema de comunicación', 'Un país', 'Un deporte'], 'r': 'Un sistema de comunicación'},
+                {'p': '¿Cuál es una lengua?', 'o': ['inglés', 'Europa', 'Granada'], 'r': 'inglés'},
+                {'p': '¿Qué se hace en una exposición oral?', 'o': ['Explicar un tema ante otros', 'Dormir', 'Cantar siempre'], 'r': 'Explicar un tema ante otros'},
+                {'p': '¿Qué palabra pertenece a la familia de "tiempo"?', 'o': ['temporal', 'templar', 'timbre'], 'r': 'temporal'},
+                {'p': '¿Qué lengua se habla en Francia?', 'o': ['francés', 'alemán', 'italiano'], 'r': 'francés'},
+                {'p': '¿Qué lengua se habla en Reino Unido?', 'o': ['inglés', 'árabe', 'latín'], 'r': 'inglés'}
+            ],
+            [
+                {'p': '¿Cuál NO pertenece a la familia de "leer"?', 'o': ['lector', 'lectura', 'letra'], 'r': 'letra'},
+                {'p': 'Familia de "nación":', 'o': ['nación, nacional, nacionalidad', 'nación, nacer, naciendo', 'nación, noche, nicho'], 'r': 'nación, nacional, nacionalidad'},
+                {'p': 'Un texto expositivo debe ser...', 'o': ['claro y ordenado', 'misterioso', 'confuso'], 'r': 'claro y ordenado'},
+                {'p': '¿Qué es la lengua de signos?', 'o': ['Lengua visual con las manos', 'Lengua escrita en libros', 'Lengua secreta'], 'r': 'Lengua visual con las manos'},
+                {'p': '¿Qué palabra pertenece a la familia de "historia"?', 'o': ['historiador', 'histérico', 'histeria'], 'r': 'historiador'},
+                {'p': '¿Qué se utiliza en una exposición en vídeo?', 'o': ['imagen y voz', 'solo música', 'solo texto'], 'r': 'imagen y voz'},
+                {'p': '¿Qué lengua se habla en Italia?', 'o': ['italiano', 'portugués', 'ruso'], 'r': 'italiano'},
+                {'p': '¿Qué palabra pertenece a la familia de "mar"?', 'o': ['marea', 'malo', 'mármol'], 'r': 'marea'},
+                {'p': '¿Qué es una comunidad lingüística?', 'o': ['Personas que comparten una lengua', 'Personas que comparten deporte', 'Personas que comparten ropa'], 'r': 'Personas que comparten una lengua'},
+                {'p': '¿Qué tipo de texto explica un tema sobre animales?', 'o': ['Expositivo', 'Lírico', 'Teatral'], 'r': 'Expositivo'}
+            ]
+        ]
+    },
+
+    'U8': {
+        'titulo': 'Correspondencia entre tú y yo (Pronombres personales, cartas y correos)',
+        'examenes': [
+            [
+                {'p': '¿Qué es un pronombre personal?', 'o': ['Palabra que sustituye al nombre', 'Nombre de una persona', 'Un adjetivo'], 'r': 'Palabra que sustituye al nombre'},
+                {'p': '¿Cuál es un pronombre personal?', 'o': ['yo', 'casa', 'bonito'], 'r': 'yo'},
+                {'p': 'Completa: "___ voy al parque"', 'o': ['Yo', 'Casa', 'Libro'], 'r': 'Yo'},
+                {'p': '¿Cuál NO es pronombre personal?', 'o': ['árbol', 'tú', 'nosotros'], 'r': 'árbol'},
+                {'p': '¿Qué pronombre sustituye a "María"?', 'o': ['ella', 'nosotros', 'tú'], 'r': 'ella'},
+                {'p': '¿Qué pronombre sustituye a "Juan y yo"?', 'o': ['nosotros', 'ellos', 'él'], 'r': 'nosotros'},
+                {'p': '¿Qué tipo de texto es una carta?', 'o': ['Texto de correspondencia', 'Texto teatral', 'Texto poético'], 'r': 'Texto de correspondencia'},
+                {'p': 'Parte de la carta donde va el saludo', 'o': ['encabezamiento', 'despedida', 'firma'], 'r': 'encabezamiento'},
+                {'p': 'Parte final de la carta donde te despides', 'o': ['despedida', 'cuerpo', 'dirección'], 'r': 'despedida'},
+                {'p': '¿Qué se escribe en un correo electrónico?', 'o': ['Asunto y mensaje', 'Solo dibujos', 'Solo números'], 'r': 'Asunto y mensaje'}
+            ],
+            [
+                {'p': '¿Cuál es un pronombre personal de 2.ª persona del singular?', 'o': ['tú', 'yo', 'ellos'], 'r': 'tú'},
+                {'p': '¿Cuál es un pronombre de 3.ª persona del plural?', 'o': ['ellos', 'nosotros', 'tú'], 'r': 'ellos'},
+                {'p': 'Completa: "___ somos amigos"', 'o': ['Nosotros', 'Él', 'Ella'], 'r': 'Nosotros'},
+                {'p': 'En una carta, ¿dónde se cuenta lo que quieres decir?', 'o': ['En el cuerpo', 'En la fecha', 'En la firma'], 'r': 'En el cuerpo'},
+                {'p': '¿Qué se pone en la firma de una carta?', 'o': ['El nombre de quien la escribe', 'La dirección', 'La fecha'], 'r': 'El nombre de quien la escribe'},
+                {'p': '¿Qué abreviatura es correcta?', 'o': ['Sr.', 'Señ.', 'Sn.'], 'r': 'Sr.'},
+                {'p': '¿Qué significan las siglas "DNI"?', 'o': ['Documento Nacional de Identidad', 'Día Nacional Infantil', 'Datos Nacionales Internet'], 'r': 'Documento Nacional de Identidad'},
+                {'p': 'Completa: "___ te escribo para contarte..."', 'o': ['Te', 'Nos', 'Le'], 'r': 'Te'},
+                {'p': '¿Qué pronombre usamos para "Ana y tú"?', 'o': ['vosotros', 'ellos', 'él'], 'r': 'vosotros'},
+                {'p': '¿Qué diferencia a una carta formal?', 'o': ['Lenguaje más respetuoso', 'Muchos dibujos', 'No tiene saludo'], 'r': 'Lenguaje más respetuoso'}
+            ],
+            [
+                {'p': '¿Cuál es un pronombre personal de 1.ª persona plural?', 'o': ['nosotros', 'ellos', 'ella'], 'r': 'nosotros'},
+                {'p': '¿Cuál es un pronombre de 3.ª persona singular?', 'o': ['él', 'tú', 'yo'], 'r': 'él'},
+                {'p': 'Completa: "___ vais al colegio"', 'o': ['Vosotros', 'Ellos', 'Él'], 'r': 'Vosotros'},
+                {'p': 'En un correo electrónico, el campo "Para" indica...', 'o': ['el destinatario', 'el remitente', 'la firma'], 'r': 'el destinatario'},
+                {'p': 'En una carta, ¿dónde se pone la fecha?', 'o': ['Arriba a la derecha', 'En la firma', 'En el cuerpo'], 'r': 'Arriba a la derecha'},
+                {'p': '¿Qué es una abreviatura?', 'o': ['Forma corta de una palabra', 'Un dibujo', 'Un número'], 'r': 'Forma corta de una palabra'},
+                {'p': '¿Qué es una sigla?', 'o': ['Palabra formada por iniciales', 'Un cuento', 'Un saludo'], 'r': 'Palabra formada por iniciales'},
+                {'p': 'Completa: "___ escriben muy bien"', 'o': ['Ellos', 'Yo', 'Tú'], 'r': 'Ellos'},
+                {'p': '¿Qué lenguaje usamos con amigos?', 'o': ['Más informal o coloquial', 'Muy formal siempre', 'Solo en cartas'], 'r': 'Más informal o coloquial'},
+                {'p': '¿Qué lenguaje usamos en una carta al director del colegio?', 'o': ['Lenguaje formal', 'Lenguaje de chat', 'Lenguaje secreto'], 'r': 'Lenguaje formal'}
             ]
         ]
     }
 })
-# lengua.py - Unidades U1 a U3 completas
-TEMARIO = {
-    'U1': {
-        'titulo': '¡Por nuestra salud!',
-        'examenes': [
-            [   # Examen 1
-                {'p': 'Selecciona la forma correcta de la G o J en: "El ___ato es importante"', 'o': ['gato', 'jato', 'gato'], 'r': 'gato'},
-                {'p': '¿Cuál es el objetivo principal de un anuncio?', 'o': ['Informar', 'Vender', 'Cantar'], 'r': 'Vender'},
-                {'p': 'Completa: "El doctor nos dio ___ consejos para la salud"', 'o': ['buenos', 'bien', 'bueno'], 'r': 'buenos'},
-                {'p': 'Selecciona la oración con G correcta', 'o': ['Pagué la cuenta', 'Pajé la cuenta', 'Pagé la cuenta'], 'r': 'Pagé la cuenta'},
-                {'p': 'Elige la letra correcta: "El je___ de la selva"', 'o': ['fe', 'je', 'ge'], 'r': 'fe'},
-                {'p': '¿Qué tipo de texto es un anuncio?', 'o': ['Persuasivo', 'Narrativo', 'Poético'], 'r': 'Persuasivo'},
-                {'p': 'Completa: "Debemos ___ ejercicio regularmente"', 'o': ['hacer', 'hazer', 'aser'], 'r': 'hacer'},
-                {'p': 'Selecciona la G correcta: "La j___ fue divertida"', 'o': ['ira', 'ira', 'era'], 'r': 'ira'},
-                {'p': 'Elige la opción correcta: "Come frutas y ___ verduras"', 'o': ['verduras', 'verduras', 'verduras'], 'r': 'verduras'},
-                {'p': 'Identifica la J correcta: "El niño ___uega en el parque"', 'o': ['juega', 'guega', 'jeuga'], 'r': 'juega'}
-            ],
-            [   # Examen 2
-                {'p': '¿Qué se busca con un anuncio publicitario?', 'o': ['Vender un producto', 'Contar un cuento', 'Explicar un experimento'], 'r': 'Vender un producto'},
-                {'p': 'Completa: "El médico ___ buenos hábitos"', 'o': ['recomienda', 'rekomienda', 'recomiendas'], 'r': 'recomienda'},
-                {'p': 'Selecciona la palabra con G correcta', 'o': ['gente', 'jente', 'gente'], 'r': 'gente'},
-                {'p': 'Identifica la letra correcta: "El je___ de la historia"', 'o': ['fe', 'je', 'ge'], 'r': 'je'},
-                {'p': 'Oración con J correcta', 'o': ['El juez dictó la sentencia', 'El guez dictó la sentencia', 'El jeuz dictó la sentencia'], 'r': 'El juez dictó la sentencia'},
-                {'p': 'Completa: "Es importante ___ una dieta equilibrada"', 'o': ['tener', 'tner', 'tenr'], 'r': 'tener'},
-                {'p': 'Elige la opción correcta: "Los niños ___ a la escuela"', 'o': ['van', 'ban', 'van'], 'r': 'van'},
-                {'p': '¿Qué tipo de texto es un anuncio?', 'o': ['Persuasivo', 'Narrativo', 'Expositivo'], 'r': 'Persuasivo'},
-                {'p': 'Selecciona la J correcta: "El niño ___uega al fútbol"', 'o': ['juega', 'geua', 'jeuga'], 'r': 'juega'},
-                {'p': 'Completa: "Debemos beber ___ agua"', 'o': ['mucha', 'muha', 'mucha'], 'r': 'mucha'}
-            ],
-            [   # Examen 3
-                {'p': 'Selecciona la letra correcta: "La ma___ana es fría"', 'o': ['ñ', 'n', 'g'], 'r': 'ñ'},
-                {'p': 'Completa: "El doctor recomienda ___ frutas"', 'o': ['comer', 'komer', 'comer'], 'r': 'comer'},
-                {'p': 'Identifica la G correcta: "La gi___afa es alta"', 'o': ['r', 'f', 'g'], 'r': 'r'},  # Ejemplo simple
-                {'p': 'Oración con J correcta', 'o': ['El jardinero cuida las flores', 'El gardinero cuida las flores', 'El jardineiro cuida las flores'], 'r': 'El jardinero cuida las flores'},
-                {'p': '¿Cuál es el objetivo de un anuncio?', 'o': ['Vender', 'Informar', 'Narrar'], 'r': 'Vender'},
-                {'p': 'Completa: "Es bueno ___ deporte"', 'o': ['hacer', 'aser', 'hazer'], 'r': 'hacer'},
-                {'p': 'Selecciona la opción correcta: "Bebo ___ agua todos los días"', 'o': ['mucha', 'muha', 'mucho'], 'r': 'mucha'},
-                {'p': 'Pronuncia correcta de G/J: "via___e"', 'o': ['ge', 'je', 'je'], 'r': 'je'},
-                {'p': 'Completa: "El maestro ___ reglas de ortografía"', 'o': ['enseña', 'ensena', 'ensenia'], 'r': 'enseña'},
-                {'p': 'Identifica la palabra con G correcta: "girar"', 'o': ['girar', 'jirar', 'girar'], 'r': 'girar'}
-            ]
-        ]
-    },
-    'U3': {
-        'titulo': 'Versoladas',
-        'examenes': [
-            [
-                {'p': '¿Qué tipo de determinante es “este”?', 'o': ['Demostrativo', 'Posesivo', 'Indefinido'], 'r': 'Demostrativo'},
-                {'p': 'Selecciona el determinante correcto: “___ casa es grande”', 'o': ['Esta', 'Ese', 'Algun'], 'r': 'Esta'},
-                {'p': 'Completa: "Voy a ver ___ amigos"', 'o': ['mis', 'míos', 'mi'], 'r': 'mis'},
-                {'p': 'Identifica el determinante: "Aquel libro es interesante"', 'o': ['Aquel', 'Libro', 'Es'], 'r': 'Aquel'},
-                {'p': 'Selecciona el determinante adecuado: "No tengo ___ tiempo"', 'o': ['mucho', 'muchos', 'mucha'], 'r': 'mucho'},
-                {'p': 'Completa: "He comprado ___ manzanas"', 'o': ['unas', 'unos', 'una'], 'r': 'unas'},
-                {'p': 'Tipo de determinante: "su mochila"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Completa: "___ personas vinieron"', 'o': ['Algunas', 'Algunos', 'Unas'], 'r': 'Algunas'},
-                {'p': 'Selecciona el determinante correcto: "No conozco ___ niños"', 'o': ['esos', 'aquellos', 'algunos'], 'r': 'algunos'},
-                {'p': 'Tipo de determinante: "mi libro"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'}
-            ],
-            [
-                {'p': 'Determinate: “este lápiz es mío”', 'o': ['Demostrativo', 'Posesivo', 'Indefinido'], 'r': 'Demostrativo'},
-                {'p': 'Completa: "___ perro es de Juan"', 'o': ['Ese', 'Este', 'Aquel'], 'r': 'Ese'},
-                {'p': 'Selecciona determinante: "Veo ___ casas"', 'o': ['unas', 'unos', 'algunas'], 'r': 'unas'},
-                {'p': 'Tipo de determinante: "su hermano"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Completa: "No tengo ___ ideas"', 'o': ['ninguna', 'alguna', 'muchas'], 'r': 'ninguna'},
-                {'p': 'Determinante: "aquel edificio"', 'o': ['Demostrativo', 'Posesivo', 'Indefinido'], 'r': 'Demostrativo'},
-                {'p': 'Completa: "He visto ___ libros"', 'o': ['algunos', 'unas', 'un'], 'r': 'algunos'},
-                {'p': 'Tipo: "mi casa"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Completa: "___ estudiantes aprobaron"', 'o': ['Todos', 'Algunos', 'Muchos'], 'r': 'Algunos'},
-                {'p': 'Selecciona: "su mochila"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'}
-            ],
-            [
-                {'p': 'Determinante: “aquel día fue especial”', 'o': ['Demostrativo', 'Posesivo', 'Indefinido'], 'r': 'Demostrativo'},
-                {'p': 'Completa: "___ casa es grande"', 'o': ['Esta', 'Ese', 'Algun'], 'r': 'Esta'},
-                {'p': 'Tipo de determinante: "mis amigos"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Selecciona el determinante: "unos niños corren"', 'o': ['Indefinido', 'Demostrativo', 'Posesivo'], 'r': 'Indefinido'},
-                {'p': 'Completa: "___ mochila es tuya"', 'o': ['Esa', 'Su', 'Esta'], 'r': 'Su'},
-                {'p': 'Determinante: "algunas chicas"', 'o': ['Indefinido', 'Posesivo', 'Demostrativo'], 'r': 'Indefinido'},
-                {'p': 'Tipo: "mi cuaderno"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Completa: "___ días fueron maravillosos"', 'o': ['Esos', 'Unos', 'Algunos'], 'r': 'Esos'},
-                {'p': 'Selecciona el determinante: "su hermano mayor"', 'o': ['Posesivo', 'Demostrativo', 'Indefinido'], 'r': 'Posesivo'},
-                {'p': 'Completa: "___ personas vinieron a la fiesta"', 'o': ['Algunas', 'Todos', 'Muchos'], 'r': 'Algunas'}
-            ]
-        ]
-    }
-}
