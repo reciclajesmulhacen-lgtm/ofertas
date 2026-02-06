@@ -1,6 +1,15 @@
+# mates.py - COMPLETO con botones ATRÁS/GUARDAR
+import tkinter as tk
+from tkinter import messagebox
 import json
 import os
 from datetime import datetime
+
+# TEMARIO (TU CÓDIGO ORIGINAL - NO TOCAR)
+TEMARIO = {
+    # ... TODO tu TEMARIO de mates U1-U8 aquí (copiar tal cual) ...
+    # Mantén exactamente igual como lo tienes
+}
 
 # VARIABLES GLOBALES
 ventana = None
@@ -10,14 +19,14 @@ unidad_actual = "U1"
 puntuacion_total = 0
 examenes_completados = []
 
-# 🔙 FUNCIÓN VOLVER A boy.py
+# 🔙 VOLVER A bot.py
 def volver_menu_principal():
-    """Vuelve a boy.py"""
+    """Vuelve a bot.py"""
     ventana.destroy()
-    import boy
-    boy.main()
+    import bot
+    bot.main()
 
-# 💾 FUNCIÓN GUARDAR PROGRESO
+# 💾 GUARDAR PROGRESO
 def guardar_progreso():
     """Guarda progreso actual"""
     global puntuacion_total, unidad_actual, examenes_completados
@@ -31,8 +40,120 @@ def guardar_progreso():
     }
     with open("progreso.json", "w", encoding="utf-8") as f:
         json.dump(progreso, f, ensure_ascii=False, indent=2)
-    print("✅ Progreso guardado!")
+    messagebox.showinfo("✅", "¡Progreso guardado!\nVuelve cuando quieras.")
 
+def mostrar_unidad(unidad):
+    """Muestra exámenes de unidad"""
+    global unidad_actual, frame_contenido
+    unidad_actual = unidad
+    
+    # Limpiar contenido
+    for widget in frame_contenido.winfo_children():
+        widget.destroy()
+    
+    # Título unidad
+    tk.Label(frame_contenido, 
+             text=f"📚 {TEMARIO[unidad]['titulo']}", 
+             font=("Arial", 18, "bold"),
+             bg="#f0f8ff", fg="#2c3e50").pack(pady=30)
+    
+    tk.Label(frame_contenido, text="📝 ELIGE EXAMEN:", 
+             font=("Arial", 14), bg="#f0f8ff").pack(pady=(20,10))
+    
+    # 3 exámenes
+    for i, examen in enumerate(TEMARIO[unidad]['examenes'], 1):
+        tk.Button(frame_contenido,
+                 text=f"EXAMEN {i}",
+                 command=lambda e=examen: iniciar_examen(e),  # Tu función original
+                 bg="#27ae60", fg="white",
+                 font=("Arial", 14, "bold"),
+                 padx=40, pady=15,
+                 relief="raised", bd=4).pack(pady=12)
+    
+    # Volver unidades
+    tk.Button(frame_contenido,
+             text="🔙 UNIDADES",
+             command=lambda: main(),
+             bg="#95a5a6", fg="white",
+             font=("Arial", 12, "bold"),
+             padx=30, pady=10).pack(pady=25)
+
+# TU FUNCIÓN iniciar_examen (mantener igual)
+def iniciar_examen(examen):
+    # Tu código original de examen aquí
+    pass
+
+# MAIN COMPLETO
+def main():
+    global ventana, frame_contenido
+    
+    ventana = tk.Tk()
+    ventana.title("🔢 MATEMÁTICAS - Mochila Ligera 5")
+    ventana.geometry("850x750")
+    ventana.configure(bg="#f0f8ff")
+    ventana.resizable(False, False)
+    
+    # === HEADER 🔙💾 ===
+    header = tk.Frame(ventana, bg="#2c3e50", height=90)
+    header.pack(fill="x")
+    header.pack_propagate(False)
+    
+    tk.Label(header, text="🔢 MATEMÁTICAS 5º PRIMARIA", 
+             font=("Arial", 16, "bold"), 
+             bg="#2c3e50", fg="white").pack(side="left", padx=25, pady=25)
+    
+    # 🔙 ATRÁS
+    tk.Button(header,
+             text="🔙 BOT.PY",
+             command=volver_menu_principal,
+             bg="#e74c3c", fg="white",
+             font=("Arial", 13, "bold"),
+             relief="raised", bd=4,
+             padx=20, pady=8).pack(side="left", padx=15, pady=22)
+    
+    # 💾 GUARDAR
+    tk.Button(header,
+             text="💾 GUARDAR PROGRESO",
+             command=guardar_progreso,
+             bg="#28a745", fg="white",
+             font=("Arial", 13, "bold"),
+             relief="raised", bd=4,
+             padx=20, pady=8).pack(side="right", padx=20, pady=22)
+    
+    # === CONTENIDO ===
+    frame_contenido = tk.Frame(ventana, bg="#f0f8ff")
+    frame_contenido.pack(fill="both", expand=True, padx=40, pady=30)
+    
+    # Título unidades
+    tk.Label(frame_contenido, 
+             text="📚 ELIGE UNIDAD", 
+             font=("Arial", 20, "bold"),
+             bg="#f0f8ff", fg="#2c3e50").pack(pady=30)
+    
+    frame_unidades = tk.Frame(frame_contenido, bg="#f0f8ff")
+    frame_unidades.pack(pady=25)
+    
+    # BOTONES U1-U8
+    for unidad in ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8']:
+        btn = tk.Button(frame_unidades,
+                       text=f"📖 {unidad} - {TEMARIO[unidad]['titulo'][:30]}...",
+                       command=lambda u=unidad: mostrar_unidad(u),
+                       bg="#3498db", fg="white",
+                       font=("Arial", 12, "bold"),
+                       relief="raised", bd=4,
+                       padx=30, pady=15,
+                       cursor="hand2")
+        btn.pack(pady=10, padx=25, fill="x")
+    
+    # Info inferior
+    tk.Label(frame_contenido,
+            text="💡 Usa GUARDAR para salvar tu progreso | Puntuación: 0 pts", 
+            font=("Arial", 11), bg="#f0f8ff", fg="#7f8c8d").pack(pady=25)
+    
+    ventana.mainloop()
+
+if __name__ == "__main__":
+    main()
 
 
 TEMARIO = {
