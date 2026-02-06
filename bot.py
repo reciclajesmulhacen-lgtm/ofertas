@@ -9,14 +9,13 @@ from telebot import types
 # ===============================
 # ⚠️ Configuración
 # ===============================
-# Railway leerá "telegram_token" de las variables de entorno
+# Usamos el nombre de variable que ya tienes en Railway
 token = os.environ.get("TELEGRAM_BOT_TOKEN")
 bot = telebot.TeleBot(token)
 app = Flask(__name__)
 
-# URL de Railway (la genera Railway automáticamente en la pestaña Networking)
-# Necesaria para que Telegram sepa a dónde enviar los mensajes
-RAILWAY_URL = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")
+# URL de Railway (Pestaña Networking)
+RAILWAY_URL = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
 
 # Datos en memoria (Se pierden al reiniciar)
 user_stats = {} 
@@ -70,7 +69,6 @@ def enviar_pregunta(chat_id):
 @bot.callback_query_handler(func=lambda call: call.data == "menu_principal")
 def menu_principal(message):
     chat_id = message.chat.id if hasattr(message, 'chat') else message.message.chat.id
-    
     if chat_id in user_stats:
         del user_stats[chat_id]
     
@@ -84,8 +82,7 @@ def menu_principal(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
 def abrir_materia(call):
-    # Corrección: split devuelve lista, tomamos el segundo elemento
-    materia_id = call.data.split('_')[1] 
+    materia_id = call.data.split('_')[1] # Extrae 'lengua', 'mates', etc.
     try:
         spec = importlib.util.spec_from_file_location(materia_id, f"{materia_id}.py")
         module = importlib.util.module_from_spec(spec)
@@ -108,10 +105,10 @@ def abrir_materia(call):
         enviar_pregunta(call.message.chat.id)
 
     except Exception as e:
-        print(f"Error cargando materia: {e}")
+        print(f"Error: {e}")
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 Volver al Menú", callback_data="menu_principal"))
-        bot.send_message(call.message.chat.id, "⚠️ Error al cargar la materia. Verifica que el archivo existe.", reply_markup=markup)
+        bot.send_message(call.message.chat.id, "⚠️ Error al cargar la materia.", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
 def manejar_respuesta(call):
@@ -136,12 +133,10 @@ def manejar_respuesta(call):
         registrar_resultado(chat_id, datos['aciertos'], datos['fallos'])
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
-        
         resumen = (f"🏁 *¡Examen Finalizado!*\n\n"
                   f"Materia: {materias_display[datos['materia']]}\n"
                   f"✅ Aciertos: {datos['aciertos']}\n"
                   f"❌ Fallos: {datos['fallos']}")
-        
         bot.send_message(chat_id, resumen, reply_markup=markup, parse_mode='Markdown')
         del user_stats[chat_id]
 
@@ -149,19 +144,13 @@ def manejar_respuesta(call):
 def ver_estadisticas(call):
     chat_id = call.message.chat.id
     s = estadisticas.get(chat_id, {'aciertos': 0, 'fallos': 0, 'intentos': 0})
-    
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
-    
-    msg = f"📊 *Tus Estadísticas*\n\n" \
-          f"🔹 Intentos: {s['intentos']}\n" \
-          f"✅ Total Aciertos: {s['aciertos']}\n" \
-          f"❌ Total Fallos: {s['fallos']}"
-    
+    msg = f"📊 *Tus Estadísticas*\n\n🔹 Intentos: {s['intentos']}\n✅ Total Aciertos: {s['aciertos']}\n❌ Total Fallos: {s['fallos']}"
     bot.send_message(chat_id, msg, reply_markup=markup, parse_mode='Markdown')
 
 # ===============================
-# 🌐 Configuración del Servidor Flask
+# 🌐 Webhook y Servidor
 # ===============================
 
 @app.route(f'/{token}', methods=['POST'])
@@ -171,19 +160,20 @@ def get_message():
         update = telebot.types.Update.de_json(json_string)
         bot.process_new_updates([update])
         return "!", 200
-    else:
-        return "error", 403
+    return "error", 403
 
 @app.route("/")
 def index():
-    # Establecer el webhook automáticamente al entrar a la URL
-    if RAILWAY_URL:
-        bot.remove_webhook()
-        bot.set_webhook(url=f"https://{RAILWAY_URL}/{token}")
-        return "Bot de estudio activo y Webhook configurado correctamente.", 200
-    return "Bot funcionando, pero falta configurar RAILWAY_PUBLIC_DOMAIN.", 200
+    return "Bot Online", 200
 
 if __name__ == "__main__":
-    # Railway asigna el puerto mediante la variable PORT
-    port = int(os.environ.get("PORT", 5000))
+    # Puerto dinámico de Railway
+    port = int(os.environ.get("PORT", 8080))
+    
+    # Configuración automática del Webhook
+    if RAILWAY_URL and token:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"https://{RAILWAY_URL}/{token}")
+        print(f"Webhook configurado en https://{RAILWAY_URL}/{token}")
+
     app.run(host="0.0.0.0", port=port)
