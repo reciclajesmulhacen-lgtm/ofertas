@@ -14,7 +14,7 @@ PORT = int(os.environ.get("PORT", 5000))
 
 if not TOKEN or not PUBLIC_URL:
     raise RuntimeError(
-        "❌ Faltan variables de entorno TELEGRAM_BOT_TOKEN o RAILWAY_PUBLIC_DOMAIN"
+        "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U o ofertas-production.up.railway.app"
     )
 
 # ===============================
