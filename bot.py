@@ -10,7 +10,7 @@ from telebot import types
 # ⚠️ Configuración
 # ===============================
 # Railway leerá "telegram_token" de las variables de entorno
-token = os.environ.get("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+token = os.environ.get("TELEGRAM_BOT_TOKEN")
 bot = telebot.TeleBot(token)
 app = Flask(__name__)
 
