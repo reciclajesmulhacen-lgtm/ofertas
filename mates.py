@@ -1,24 +1,23 @@
-# mates.py - AÑADIR ESTO JUSTO DESPUÉS de "import tkinter as tk"
-
 import json
 import os
 from datetime import datetime
 
-# 🔄 VARIABLES GLOBALES (AÑADIR)
+# VARIABLES GLOBALES
 ventana = None
+frame_contenido = None
 materia_actual = "mates"
 unidad_actual = "U1"
 puntuacion_total = 0
 examenes_completados = []
 
-# 🔙 FUNCIÓN VOLVER ATRÁS (AÑADIR COMPLETA)
+# 🔙 FUNCIÓN VOLVER A boy.py
 def volver_menu_principal():
-    """Vuelve al menú principal"""
+    """Vuelve a boy.py"""
     ventana.destroy()
-    import menu_principal
-    menu_principal.main()
+    import boy
+    boy.main()
 
-# 💾 FUNCIÓN GUARDAR (AÑADIR COMPLETA)
+# 💾 FUNCIÓN GUARDAR PROGRESO
 def guardar_progreso():
     """Guarda progreso actual"""
     global puntuacion_total, unidad_actual, examenes_completados
@@ -33,6 +32,7 @@ def guardar_progreso():
     with open("progreso.json", "w", encoding="utf-8") as f:
         json.dump(progreso, f, ensure_ascii=False, indent=2)
     print("✅ Progreso guardado!")
+
 
 
 TEMARIO = {
