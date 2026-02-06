@@ -7,7 +7,7 @@ TEMARIO = {
             [
                 {'p': '¿Cómo se dice "Hola"?', 'o': ['Bonjour', 'Au revoir', 'Salut'], 'r': 'Bonjour'},
                 {'p': '¿Cómo se dice "Adiós"?', 'o': ['Au revoir', 'Bonjour', 'Merci'], 'r': 'Au revoir'},
-                {'p': '"Je m'appelle Ana" significa:', 'o': ['Me llamo Ana', 'Tengo 10 años', '¿Cómo te llamas?'], 'r': 'Me llamo Ana'},
+                {'p': '"Je m\'appelle Ana" significa:', 'o': ['Me llamo Ana', 'Tengo 10 años', '¿Cómo te llamas?'], 'r': 'Me llamo Ana'},
                 {'p': 'Número 5 en francés:', 'o': ['cinq', 'six', 'quatre'], 'r': 'cinq'},
                 {'p': '¿Cómo se dice " informal hola"?', 'o': ['Salut', 'Bonjour', 'Au revoir'], 'r': 'Salut'},
                 {'p': '"Comment t'appelles-tu?" significa:', 'o': ['¿Cómo te llamas?', '¿Cuántos años tienes?', 'Adiós'], 'r': '¿Cómo te llamas?'},
