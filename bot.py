@@ -9,7 +9,7 @@ from telebot import types
 # ===============================
 # ⚠️ Configuración
 # ===============================
-token = os.environ.get("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+token = os.environ.get("telegram_token", "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 bot = telebot.TeleBot(token)
 app = Flask(__name__)
 
