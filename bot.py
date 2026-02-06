@@ -1,4 +1,4 @@
-import os
+iimport os
 import importlib.util
 import sys
 import random
@@ -9,9 +9,14 @@ from telebot import types
 # ===============================
 # ⚠️ Configuración
 # ===============================
-token = os.environ.get("telegram_token", "8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
+# Railway leerá "telegram_token" de las variables de entorno
+token = os.environ.get("8441666201:AAHygO1Osx5IdxnmQpQuF__Y8WyGvBKhr4U")
 bot = telebot.TeleBot(token)
 app = Flask(__name__)
+
+# URL de Railway (la genera Railway automáticamente en la pestaña Networking)
+# Necesaria para que Telegram sepa a dónde enviar los mensajes
+RAILWAY_URL = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")
 
 # Datos en memoria (Se pierden al reiniciar)
 user_stats = {} 
@@ -41,13 +46,11 @@ def enviar_pregunta(chat_id):
     idx = datos['indice']
     pregunta = datos['preguntas'][idx]
 
-    # Botones con las opciones de respuesta
     markup = types.InlineKeyboardMarkup(row_width=1)
     for opcion in pregunta['o']:
         es_correcta = 1 if opcion == pregunta['r'] else 0
         markup.add(types.InlineKeyboardButton(opcion, callback_data=f"ans_{es_correcta}"))
     
-    # Botón para volver al menú principal en cualquier momento
     markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
 
     bot.send_message(
@@ -66,10 +69,8 @@ def enviar_pregunta(chat_id):
 @bot.message_handler(commands=['start', 'menu'])
 @bot.callback_query_handler(func=lambda call: call.data == "menu_principal")
 def menu_principal(message):
-    # Detectar si viene de un comando o de un botón de callback
     chat_id = message.chat.id if hasattr(message, 'chat') else message.message.chat.id
     
-    # Si el usuario estaba en un examen, lo sacamos de user_stats
     if chat_id in user_stats:
         del user_stats[chat_id]
     
@@ -83,15 +84,14 @@ def menu_principal(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat_'))
 def abrir_materia(call):
-    materia_id = call.data.split('_') # Ej: 'mates'
+    # Corrección: split devuelve lista, tomamos el segundo elemento
+    materia_id = call.data.split('_')[1] 
     try:
-        # Carga dinámica del archivo en el mismo directorio
         spec = importlib.util.spec_from_file_location(materia_id, f"{materia_id}.py")
         module = importlib.util.module_from_spec(spec)
         sys.modules[materia_id] = module
         spec.loader.exec_module(module)
         
-        # Extraer preguntas del diccionario TEMARIO (usa 'p', 'o', 'r')
         temario = getattr(module, "TEMARIO")
         todas_preguntas = []
         for u in temario.values():
@@ -108,21 +108,20 @@ def abrir_materia(call):
         enviar_pregunta(call.message.chat.id)
 
     except Exception as e:
-        # Si hay error, da la opción de volver
+        print(f"Error cargando materia: {e}")
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 Volver al Menú", callback_data="menu_principal"))
-        bot.send_message(call.message.chat.id, "⚠️ Error al cargar la materia. Inténtalo de nuevo.", reply_markup=markup)
+        bot.send_message(call.message.chat.id, "⚠️ Error al cargar la materia. Verifica que el archivo existe.", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
 def manejar_respuesta(call):
     chat_id = call.message.chat.id
     datos = user_stats.get(chat_id)
     if not datos: 
-        # Si los datos se perdieron, enviamos al menú principal
         menu_principal(call)
         return
 
-    es_correcta = int(call.data.split('_'))
+    es_correcta = int(call.data.split('_')[1])
     if es_correcta:
         datos['aciertos'] += 1
         bot.answer_callback_query(call.id, "✅ ¡Correcto!")
@@ -134,9 +133,7 @@ def manejar_respuesta(call):
     if datos['indice'] < len(datos['preguntas']):
         enviar_pregunta(chat_id)
     else:
-        # Fin del examen
         registrar_resultado(chat_id, datos['aciertos'], datos['fallos'])
-        
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 Volver al Menú Principal", callback_data="menu_principal"))
         
@@ -163,13 +160,30 @@ def ver_estadisticas(call):
     
     bot.send_message(chat_id, msg, reply_markup=markup, parse_mode='Markdown')
 
-# Webhook para Railway
+# ===============================
+# 🌐 Configuración del Servidor Flask
+# ===============================
+
 @app.route(f'/{token}', methods=['POST'])
 def get_message():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return "!", 200
+    else:
+        return "error", 403
+
+@app.route("/")
+def index():
+    # Establecer el webhook automáticamente al entrar a la URL
+    if RAILWAY_URL:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"https://{RAILWAY_URL}/{token}")
+        return "Bot de estudio activo y Webhook configurado correctamente.", 200
+    return "Bot funcionando, pero falta configurar RAILWAY_PUBLIC_DOMAIN.", 200
 
 if __name__ == "__main__":
-    pass
+    # Railway asigna el puerto mediante la variable PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
