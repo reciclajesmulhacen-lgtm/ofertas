@@ -1,0 +1,171 @@
+# mates.py - GUI MODERNA con temario_mates.json
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+from datetime import datetime
+
+# 🔥 CARGAR TEMARIO DESDE JSON
+def cargar_temario():
+    try:
+        with open("temario_mates.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        messagebox.showerror("❌ ERROR", "No encuentro temario_mates.json\n¡Crea el archivo primero!")
+        return {}
+
+TEMARIO = cargar_temario()
+
+# 🌈 VARIABLES GLOBALES
+ventana = None
+frame_contenido = None
+
+# 🎮 EFECTOS VISUALES
+def hover_enter(btn):
+    btn.configure(bg="#5dade2", relief="flat")
+
+def hover_leave(btn, color_original):
+    btn.configure(bg=color_original, relief="raised")
+
+# 🔙 BOTÓN VOLVER
+def volver_telegram():
+    ventana.destroy()
+    print("🚀 Cerrando GUI - Volviendo a Telegram")
+
+# 💾 GUARDAR PROGRESO
+def guardar_progreso():
+    progreso = {
+        "materia": "mates",
+        "unidad": "U1",
+        "puntuacion": 85,
+        "fecha": datetime.now().strftime("%d/%m/%Y %H:%M")
+    }
+    with open("progreso.json", "w") as f:
+        json.dump(progreso, f, indent=2)
+    messagebox.showinfo("🎉 ¡GUARDADO!", "⭐ Progreso salvado en progreso.json")
+
+# 📱 MOSTRAR UNIDAD
+def mostrar_unidad(unidad):
+    global frame_contenido
+    for widget in frame_contenido.winfo_children():
+        widget.destroy()
+    
+    # 🎨 TÍTULO ANIMADO
+    title_frame = tk.Frame(frame_contenido, bg="#f8f9fa", relief="ridge", bd=3)
+    title_frame.pack(pady=40, fill="x")
+    
+    tk.Label(title_frame, text="🎯", font=("Arial", 30)).pack(side="left", padx=20)
+    tk.Label(title_frame, text=TEMARIO[unidad]['titulo'], 
+             font=("Arial", 24, "bold"), bg="#f8f9fa", fg="#2c3e50").pack(side="left", pady=20)
+    
+    # 📝 BOTONES EXAMENES MODERNOS
+    tk.Label(frame_contenido, text="✨ ELIGE EXAMEN:", 
+             font=("Arial", 16, "bold"), bg="#f0f8ff").pack(pady=(30,15))
+    
+    colores = ["#27ae60", "#3498db", "#e74c3c"]
+    for i, examen in enumerate(TEMARIO[unidad]['examenes']):
+        color = colores[i % 3]
+        btn = tk.Button(frame_contenido,
+                       text=f"📝 EXAMEN {i+1}",
+                       command=lambda e=examen: messagebox.showinfo("¡EXAMEN!", f"🚀 {len(e)} preguntas listas!"),
+                       bg=color, fg="white",
+                       font=("Arial", 16, "bold"),
+                       padx=60, pady=20,
+                       relief="flat", bd=0,
+                       cursor="hand2", height=2)
+        btn.bind("<Enter>", lambda e, b=btn: hover_enter(b))
+        btn.bind("<Leave>", lambda e, b=btn, c=color: hover_leave(b, c))
+        btn.pack(pady=15, padx=50, fill="x")
+    
+    # 🔙 VOLVER
+    volver_btn = tk.Button(frame_contenido,
+                          text="🔙 VER TODAS UNIDADES",
+                          command=main,
+                          bg="#95a5a6", fg="white",
+                          font=("Arial", 14, "bold"),
+                          padx=50, pady=15,
+                          relief="flat", bd=0, cursor="hand2", height=2)
+    volver_btn.pack(pady=30)
+
+# 🖥️ MAIN MODERNA
+def main():
+    global ventana, frame_contenido
+    
+    # VENTANA PRINCIPAL
+    ventana = tk.Tk()
+    ventana.title("🔢 MATEMÁTICAS 5º - 🎮 MODO MODERNO")
+    ventana.geometry("1000x800")
+    ventana.configure(bg="#1a1a2e")
+    ventana.resizable(False, False)
+    
+    # 🎨 HEADER GRADIENTE
+    header = tk.Frame(ventana, bg="#16213e", height=100)
+    header.pack(fill="x")
+    header.pack_propagate(False)
+    
+    # LOGO + TÍTULO
+    logo = tk.Label(header, text="🔢", font=("Arial", 40), bg="#16213e", fg="#00d4ff")
+    logo.pack(side="left", padx=30, pady=25)
+    
+    tk.Label(header, text="MATEMÁTICAS 5º PRIMARIA", 
+             font=("Arial", 20, "bold"), bg="#16213e", fg="white").pack(side="left", pady=30)
+    
+    # 🔙 BOTÓN TELEGRAM
+    btn_telegram = tk.Button(header,
+                            text="📱 TELEGRAM",
+                            command=volver_telegram,
+                            bg="#ff6b6b", fg="white",
+                            font=("Arial", 14, "bold"),
+                            padx=30, pady=12,
+                            relief="flat", bd=0,
+                            cursor="hand2")
+    btn_telegram.pack(side="left", padx=20, pady=28)
+    btn_telegram.bind("<Enter>", lambda e: btn_telegram.configure(bg="#ff5252"))
+    btn_telegram.bind("<Leave>", lambda e: btn_telegram.configure(bg="#ff6b6b"))
+    
+    # 💾 BOTÓN GUARDAR
+    btn_guardar = tk.Button(header,
+                           text="💾 GUARDAR",
+                           command=guardar_progreso,
+                           bg="#51cf66", fg="white",
+                           font=("Arial", 14, "bold"),
+                           padx=30, pady=12,
+                           relief="flat", bd=0,
+                           cursor="hand2")
+    btn_guardar.pack(side="right", padx=30, pady=28)
+    btn_guardar.bind("<Enter>", lambda e: btn_guardar.configure(bg="#40c057"))
+    btn_guardar.bind("<Leave>", lambda e: btn_guardar.configure(bg="#51cf66"))
+    
+    # 📚 CONTENIDO PRINCIPAL
+    frame_contenido = tk.Frame(ventana, bg="#1a1a2e")
+    frame_contenido.pack(fill="both", expand=True, padx=50, pady=40)
+    
+    # TÍTULO CENTRAL
+    tk.Label(frame_contenido, text="🌟 ELIGE TU UNIDAD", 
+             font=("Arial", 28, "bold"), bg="#1a1a2e", fg="#00d4ff").pack(pady=40)
+    
+    # 🎯 BOTONES UNIDADES ANIMADOS
+    for unidad in ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8']:
+        if unidad in TEMARIO:
+            color = "#3742fa" if int(unidad[1]) % 2 else "#f0932b"
+            btn = tk.Button(frame_contenido,
+                           text=f"📚 U{unidad}\n{TEMARIO[unidad]['titulo']}",
+                           command=lambda u=unidad: mostrar_unidad(u),
+                           bg=color, fg="white",
+                           font=("Arial", 14, "bold"),
+                           padx=40, pady=25,
+                           relief="flat", bd=0,
+                           cursor="hand2", height=3)
+            btn.bind("<Enter>", lambda e, b=btn: b.configure(bg="#5a67d8" if color=="#3742fa" else "#eb8a1d"))
+            btn.bind("<Leave>", lambda e, b=btn, c=color: b.configure(bg=c))
+            btn.pack(pady=15, padx=30, fill="x")
+    
+    # STATUS BAR
+    status = tk.Label(ventana, text="⭐ Puntuación: 0 pts | ✨ Modo Moderno", 
+                      bg="#16213e", fg="#a0aec0", font=("Arial", 11),
+                      anchor="w", padx=20)
+    status.pack(side="bottom", fill="x")
+    
+    ventana.mainloop()
+
+if __name__ == "__main__":
+    main()
