@@ -1,6 +1,5 @@
-import tkinter as tk
-from tkinter import messagebox
-import json
+# -*- coding: utf-8 -*-
+# Temario de Mates
 
 TEMARIO = {
     'U1': {'titulo': 'Números 1000', 'examenes': [[{'p':'test','o':['a','b'],'r':'a'}]]},
