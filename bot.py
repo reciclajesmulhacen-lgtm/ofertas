@@ -14,6 +14,7 @@ bot = telebot.TeleBot(token)
 app = Flask(__name__)
 RAILWAY_URL = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
 
+# Usamos un diccionario global para el estado del usuario
 user_stats = {} 
 
 materias_display = {
@@ -29,23 +30,26 @@ materias_display = {
 # ===============================
 
 def barra_progreso(actual, total):
-    porcentaje = (actual / total)
-    relleno = int(porcentaje * 10)
-    return "🔹" * relleno + "🔸" * (10 - relleno) + f" {int(porcentaje*100)}%"
+    relleno = int((actual / total) * 10)
+    return "🔹" * relleno + "🔸" * (10 - relleno) + f" {int((actual/total)*100)}%"
 
 def generar_markup_pregunta(preguntas, idx):
-    pregunta = preguntas[idx]
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    opciones = list(pregunta['o'])
-    random.shuffle(opciones)
-    
-    for opcion in opciones:
-        es_correcta = 1 if opcion == pregunta['r'] else 0
-        # Guardamos el índice actual para evitar saltos
-        markup.add(types.InlineKeyboardButton(opcion, callback_data=f"ans:{es_correcta}:{idx}"))
-    
-    markup.add(types.InlineKeyboardButton("🛑 ABANDONAR", callback_data="menu_principal"))
-    return markup
+    # Intentar obtener la pregunta de forma segura
+    try:
+        pregunta = preguntas[idx]
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        opciones = list(pregunta['o'])
+        random.shuffle(opciones)
+        
+        for opcion in opciones:
+            es_correcta = 1 if opcion == pregunta['r'] else 0
+            # Usamos ":" como separador seguro
+            markup.add(types.InlineKeyboardButton(opcion, callback_data=f"ans:{es_correcta}:{idx}"))
+        
+        markup.add(types.InlineKeyboardButton("🛑 ABANDONAR", callback_data="menu_principal"))
+        return markup
+    except:
+        return None
 
 # ===============================
 # 🚀 Handlers
@@ -56,28 +60,32 @@ def generar_markup_pregunta(preguntas, idx):
 def menu_principal(obj):
     is_cb = isinstance(obj, types.CallbackQuery)
     chat_id = obj.message.chat.id if is_cb else obj.chat.id
-    if chat_id in user_stats: del user_stats[chat_id]
+    
+    # Limpiar rastro del usuario
+    if chat_id in user_stats:
+        del user_stats[chat_id]
     
     markup = types.InlineKeyboardMarkup(row_width=2)
-    botones = [types.InlineKeyboardButton(nom, callback_data=f"mat:{idx}") for idx, nom in materias_display.items()]
-    markup.add(*botones)
+    for idx, nom in materias_display.items():
+        markup.add(types.InlineKeyboardButton(nom, callback_data=f"mat:{idx}"))
     
     texto = "🎓 *CENTRO DE ESTUDIOS VIRTUAL*\n\nSelecciona una materia para comenzar:"
-    try:
-        if is_cb:
-            bot.edit_message_text(texto, chat_id, obj.message.message_id, reply_markup=markup, parse_mode='Markdown')
-        else:
-            bot.send_message(chat_id, texto, reply_markup=markup, parse_mode='Markdown')
-    except:
+    
+    if is_cb:
+        bot.edit_message_text(texto, chat_id, obj.message.message_id, reply_markup=markup, parse_mode='Markdown')
+    else:
         bot.send_message(chat_id, texto, reply_markup=markup, parse_mode='Markdown')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('mat:'))
 def mostrar_temas(call):
     m_id = call.data.split(':')[1]
     try:
+        # Forzar la recarga del módulo para evitar errores de caché
+        if m_id in sys.modules:
+            del sys.modules[m_id]
+            
         spec = importlib.util.spec_from_file_location(m_id, f"{m_id}.py")
         module = importlib.util.module_from_spec(spec)
-        sys.modules[m_id] = module
         spec.loader.exec_module(module)
         temario = getattr(module, "TEMARIO")
         
@@ -88,8 +96,8 @@ def mostrar_temas(call):
         
         bot.edit_message_text(f"📖 *MATERIA:* {materias_display[m_id]}\n\nSelecciona un tema:", 
                              call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
-    except:
-        bot.answer_callback_query(call.id, "Error al cargar temario.")
+    except Exception as e:
+        bot.answer_callback_query(call.id, "Error al cargar la materia.")
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('tema:'))
 def mostrar_examenes(call):
@@ -109,35 +117,40 @@ def iniciar_examen(call):
     p = call.data.split(':')
     m_id, t_nombre, ex_idx = p[1], p[2], int(p[3])
     
-    module = sys.modules.get(m_id)
-    # CORRECCIÓN AQUÍ: Acceso directo y seguro a la lista de preguntas
-    preguntas_lista = getattr(module, "TEMARIO")[t_nombre]['examenes'][ex_idx]
-    
-    user_stats[call.message.chat.id] = {
-        'preguntas': preguntas_lista,
-        'indice': 0, 'aciertos': 0, 'fallos': 0
-    }
-    
-    markup = generar_markup_pregunta(preguntas_lista, 0)
-    pregunta_texto = preguntas_lista[0]['p']
-    
-    texto = (f"📝 *EXAMEN:* {t_nombre}\n"
-             f"Pregunta 1 de {len(preguntas_lista)}\n"
-             f"{barra_progreso(1, len(preguntas_lista))}\n\n"
-             f"*P:* {pregunta_texto}")
-    
-    bot.edit_message_text(texto, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
+    try:
+        module = sys.modules.get(m_id)
+        preguntas_lista = getattr(module, "TEMARIO")[t_nombre]['examenes'][ex_idx]
+        
+        user_stats[call.message.chat.id] = {
+            'preguntas': preguntas_lista,
+            'indice': 0, 
+            'aciertos': 0, 
+            'fallos': 0
+        }
+        
+        markup = generar_markup_pregunta(preguntas_lista, 0)
+        texto = (f"📝 *EXAMEN:* {t_nombre}\n"
+                 f"Pregunta 1 de {len(preguntas_lista)}\n"
+                 f"{barra_progreso(1, len(preguntas_lista))}\n\n"
+                 f"*P:* {preguntas_lista[0]['p']}")
+        
+        bot.edit_message_text(texto, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
+    except:
+        bot.answer_callback_query(call.id, "No se pudo iniciar el examen.")
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('ans:'))
 def manejar_respuesta(call):
     chat_id = call.message.chat.id
     datos = user_stats.get(chat_id)
-    if not datos: return
+    if not datos: 
+        return bot.answer_callback_query(call.id, "Sesión caducada.")
 
     p = call.data.split(':')
     es_correcta, idx_click = int(p[1]), int(p[2])
 
-    if idx_click != datos['indice']: return
+    # Validar que el clic corresponde a la pregunta que el bot cree que toca
+    if idx_click != datos['indice']:
+        return bot.answer_callback_query(call.id, "Pregunta ya respondida.")
 
     if es_correcta:
         datos['aciertos'] += 1
@@ -146,7 +159,9 @@ def manejar_respuesta(call):
         datos['fallos'] += 1
         bot.answer_callback_query(call.id, "❌ Incorrecto")
 
+    # Avanzar
     datos['indice'] += 1
+    
     if datos['indice'] < len(datos['preguntas']):
         idx = datos['indice']
         preguntas = datos['preguntas']
@@ -159,15 +174,18 @@ def manejar_respuesta(call):
         
         bot.edit_message_text(texto, chat_id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
     else:
+        # Resultado final
         resumen = (f"🏁 *¡FIN DEL EXAMEN!*\n\n"
                    f"✅ Aciertos: `{datos['aciertos']}`\n"
                    f"❌ Fallos: `{datos['fallos']}`\n"
-                   f"📊 Nota: `{(datos['aciertos']/len(datos['preguntas']))*10:.1f}/10`")
+                   f"📊 Nota: `{(datos['aciertos']/len(datos['preguntas']))*10:.1f}/10`\n\n"
+                   "Usa /menu para volver a empezar.")
         
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 VOLVER AL MENÚ", callback_data="menu_principal"))
         bot.edit_message_text(resumen, chat_id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
-        del user_stats[chat_id]
+        if chat_id in user_stats:
+            del user_stats[chat_id]
 
 # ===============================
 # 🌐 Servidor
