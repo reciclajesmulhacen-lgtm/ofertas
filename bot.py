@@ -36,26 +36,14 @@ def registrar_resultado(chat_id, aciertos, fallos):
     estadisticas[chat_id]['fallos'] += fallos
     estadisticas[chat_id]['intentos'] += 1
 
-def enviar_pregunta(chat_id):
-    datos = user_stats.get(chat_id)
-    idx = datos['indice']
-    pregunta = datos['preguntas'][idx]
-
+def generar_markup_pregunta(preguntas, idx):
+    pregunta = preguntas[idx]
     markup = types.InlineKeyboardMarkup(row_width=1)
     for opcion in pregunta['o']:
         es_correcta = 1 if opcion == pregunta['r'] else 0
         markup.add(types.InlineKeyboardButton(opcion, callback_data=f"ans_{es_correcta}"))
-    
     markup.add(types.InlineKeyboardButton("🔙 Cancelar Examen", callback_data="menu_principal"))
-
-    msg = bot.send_message(
-        chat_id, 
-        f"❓ *Pregunta {idx+1} de {len(datos['preguntas'])}:*\n\n{pregunta['p']}", 
-        reply_markup=markup,
-        parse_mode='Markdown'
-    )
-    # Guardamos el ID del mensaje para poder borrarlo luego
-    datos['last_msg_id'] = msg.message_id
+    return markup
 
 # ===============================
 # 🚀 Handlers (Navegación)
@@ -64,11 +52,9 @@ def enviar_pregunta(chat_id):
 @bot.message_handler(commands=['start', 'menu'])
 @bot.callback_query_handler(func=lambda call: call.data == "menu_principal")
 def menu_principal(obj):
-    # Detectar si es mensaje directo o clic en botón
     is_callback = isinstance(obj, types.CallbackQuery)
     chat_id = obj.message.chat.id if is_callback else obj.chat.id
     
-    # Si estaba en un examen, lo limpiamos
     if chat_id in user_stats:
         del user_stats[chat_id]
     
@@ -80,9 +66,7 @@ def menu_principal(obj):
     texto = "👋 *Menú Principal*\nSelecciona una materia:"
     
     if is_callback:
-        # Borramos el mensaje donde estaba el botón de cancelar para poner el menú
-        bot.delete_message(chat_id, obj.message.message_id)
-        bot.send_message(chat_id, texto, reply_markup=markup, parse_mode='Markdown')
+        bot.edit_message_text(texto, chat_id, obj.message.message_id, reply_markup=markup, parse_mode='Markdown')
     else:
         bot.send_message(chat_id, texto, reply_markup=markup, parse_mode='Markdown')
 
@@ -129,12 +113,12 @@ def iniciar_examen(call):
 
     user_stats[call.message.chat.id] = {
         'preguntas': preguntas,
-        'indice': 0, 'aciertos': 0, 'fallos': 0, 'materia': m_id,
-        'last_msg_id': None
+        'indice': 0, 'aciertos': 0, 'fallos': 0
     }
     
-    bot.delete_message(call.message.chat.id, call.message.message_id)
-    enviar_pregunta(call.message.chat.id)
+    markup = generar_markup_pregunta(preguntas, 0)
+    bot.edit_message_text(f"❓ *Pregunta 1 de {len(preguntas)}:*\n\n{preguntas[0]['p']}", 
+                         call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('ans_'))
 def manejar_respuesta(call):
@@ -150,18 +134,18 @@ def manejar_respuesta(call):
         datos['fallos'] += 1
         bot.answer_callback_query(call.id, "❌ Incorrecto.")
 
-    # Borramos la pregunta respondida para enviar la siguiente
-    bot.delete_message(chat_id, call.message.message_id)
-    
     datos['indice'] += 1
     if datos['indice'] < len(datos['preguntas']):
-        enviar_pregunta(chat_id)
+        idx = datos['indice']
+        markup = generar_markup_pregunta(datos['preguntas'], idx)
+        bot.edit_message_text(f"❓ *Pregunta {idx+1} de {len(datos['preguntas'])}:*\n\n{datos['preguntas'][idx]['p']}", 
+                             chat_id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
     else:
         registrar_resultado(chat_id, datos['aciertos'], datos['fallos'])
         resumen = f"🏁 *¡Fin del Examen!*\n\n✅ Aciertos: {datos['aciertos']}\n❌ Fallos: {datos['fallos']}"
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🔙 Volver al Menú", callback_data="menu_principal"))
-        bot.send_message(chat_id, resumen, reply_markup=markup, parse_mode='Markdown')
+        bot.edit_message_text(resumen, chat_id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
         del user_stats[chat_id]
 
 @bot.callback_query_handler(func=lambda call: call.data == 'ver_estadisticas')
