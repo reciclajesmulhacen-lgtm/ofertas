@@ -4,33 +4,36 @@ from telebot import types
 from flask import Flask, request
 from html import escape as esc
 
-# --- Importar archivos de materias ---
+# --- Importar materias ---
 import mates, lengua, ingles, frances, ciencias
 
-# --- Configuración básica ---
+# --- Configuración ---
 lock = th.Lock()
 app = Flask(__name__)
 TOKEN = os.getenv("TOKEN")
 DOMAIN = os.getenv("DOMAIN")
+if not TOKEN:
+    print("❌ ERROR: No se ha definido TOKEN en variables de entorno")
+    exit(1)
 bot = tb.TeleBot(TOKEN)
 user_state = {}
 MATERIAS = {"mates": mates, "lengua": lengua, "ingles": ingles, "frances": frances, "ciencias": ciencias}
 
-# --- Persistencia minimalista ---
+# --- Persistencia ---
 def save_json(path, data):
-    with lock, open(path, 'w+') as f:
+    with lock, open(path, "w+") as f:
         json.dump(data, f)
 
 def load_json(path):
     try:
-        return json.load(open(path, 'r'))
+        return json.load(open(path, "r"))
     except:
         return {}
 
-guardar_estado_usuario = lambda uid, state: save_json(f"{uid}.json", state)
-borrar_estado_usuario = lambda uid: (os.remove(f"{uid}.json") if os.path.exists(f"{uid}.json") else None)
-registrar_respuesta = lambda uid, materia, correcta: None
-registrar_fallo = lambda uid, materia, tema, exam, p, r_correct, r_user: None
+guardar_estado_usuario = lambda uid, s: save_json(f"{uid}.json", s)
+borrar_estado_usuario = lambda uid: os.remove(f"{uid}.json") if os.path.exists(f"{uid}.json") else None
+registrar_respuesta = lambda uid, m, correcta: None
+registrar_fallo = lambda uid, m, tema, exam, p, r_correct, r_user: None
 
 # --- Teclados dinámicos ---
 def get_kb(tipo, *a):
@@ -51,16 +54,15 @@ def get_kb(tipo, *a):
 # --- Enviar pregunta ---
 def enviar_pregunta(uid, msg_id):
     state = user_state.get(uid)
-    if not state:
-        return
+    if not state: return
     idx = state['pregunta_actual']
     preguntas = state['preguntas']
     if idx >= len(preguntas):
         finalizar_examen(uid, msg_id)
         return
     p = preguntas[idx]
-    prog = "▰" * (idx + 1) + "▱" * (len(preguntas) - idx - 1)
-    texto = f"❓ Pregunta {idx + 1}/{len(preguntas)}\n[{prog}]\n\n<code>{esc(p['p'])}</code>"
+    prog = "▰"*(idx+1) + "▱"*(len(preguntas)-idx-1)
+    texto = f"❓ Pregunta {idx+1}/{len(preguntas)}\n[{prog}]\n\n<code>{esc(p['p'])}</code>"
     bot.edit_message_text(
         texto, uid, msg_id,
         reply_markup=get_kb("pregunta", p['o'], state['materia'], state['tema_idx'], state['examen_idx'], idx)
@@ -100,27 +102,19 @@ def procesar_respuesta(call):
 # --- Finalizar examen ---
 def finalizar_examen(uid, msg_id):
     state = user_state.get(uid)
-    if not state:
-        return
+    if not state: return
     correct = state['respuestas_correctas']
     total = len(state['preguntas'])
     incorrect = total - correct
-    pct = int((correct / total) * 100)
+    pct = int((correct/total)*100)
     borrar_estado_usuario(uid)
-    barra = "▰" * int((correct / total) * 10) + "▱" * (10 - int((correct / total) * 10))
-    if pct >= 90:
-        emoji, msg, consejo = "🏆", "¡EXCELENTE!", "Dominas el tema perfectamente. ¡Sigue así!"
-    elif pct >= 70:
-        emoji, msg, consejo = "⭐", "¡MUY BIEN!", "Buen trabajo. Repasa los errores para mejorar aún más."
-    elif pct >= 50:
-        emoji, msg, consejo = "👍", "BIEN HECHO", "Practica un poco más para dominar el tema."
-    else:
-        emoji, msg, consejo = "📚", "SIGUE PRACTICANDO", "No te desanimes. Revisa el tema y vuelve a intentarlo."
+    barra = "▰"*int((correct/total)*10) + "▱"*(10-int((correct/total)*10))
+    if pct >= 90: emoji,msg,consejo = "🏆","¡EXCELENTE!","Dominas el tema perfectamente. ¡Sigue así!"
+    elif pct >= 70: emoji,msg,consejo = "⭐","¡MUY BIEN!","Buen trabajo. Repasa los errores para mejorar aún más."
+    elif pct >= 50: emoji,msg,consejo = "👍","BIEN HECHO","Practica un poco más para dominar el tema."
+    else: emoji,msg,consejo = "📚","SIGUE PRACTICANDO","No te desanimes. Revisa el tema y vuelve a intentarlo."
     texto = f"{emoji} {msg}\n\n📊 Tu puntuación: {correct}/{total} ({pct}%)\n[{barra}]\n\n✅ Correctas: {correct}\n❌ Incorrectas: {incorrect}\n\n💡 {consejo}"
-    bot.edit_message_text(
-        texto, uid, msg_id,
-        reply_markup=get_kb("examen_fin", state)
-    )
+    bot.edit_message_text(texto, uid, msg_id, reply_markup=get_kb("examen_fin", state))
 
 # --- Flask ---
 @app.route('/')
@@ -139,6 +133,8 @@ def webhook():
 
 @app.route('/set_webhook')
 def set_webhook():
+    if not DOMAIN:
+        return "❌ DOMAIN no definido"
     url = f"https://{DOMAIN}/{TOKEN}"
     bot.remove_webhook()
     bot.set_webhook(url=url)
@@ -153,4 +149,4 @@ if __name__ == '__main__':
     else:
         bot.remove_webhook()
         bot.set_webhook(url=f"https://{DOMAIN}/{TOKEN}")
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT',5000)))
