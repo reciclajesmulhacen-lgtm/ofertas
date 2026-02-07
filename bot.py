@@ -272,10 +272,8 @@ def procesar_respuesta(call):
     if correcta:
         state['respuestas_correctas'] += 1
         emoji = "✅"
-        texto_feedback = "¡Correcto! 👏"
     else:
         emoji = "❌"
-        texto_feedback = f"Incorrecto. 💡 La respuesta correcta era:\n<code>{escape_html(respuesta_correcta)}</code>"
         registrar_fallo(user_id,state['materia'],state['tema_idx'],state['examen_idx'],pregunta['p'],respuesta_correcta,respuesta_usuario)
     registrar_respuesta(user_id,state['materia'],correcta)
     bot.answer_callback_query(call.id,f"{emoji}",show_alert=False)
@@ -340,6 +338,7 @@ def set_webhook():
     return f"Webhook configurado: {webhook_url}"
 
 if __name__ == "__main__":
-    if not DOMAIN:
-        print("⚠️ Modo desarrollo (sin webhook)")
-        bot.remove_w_
+    port = int(os.environ.get('PORT', 5000))
+    bot.remove_webhook()
+    bot.set_webhook(url=f"https://{DOMAIN}/{TOKEN}") if DOMAIN else None
+    app.run(host="0.0.0.0", port=port)
