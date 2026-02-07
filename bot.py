@@ -10,11 +10,12 @@ import mates, lengua, ingles, frances, ciencias
 # --- Configuración ---
 lock = th.Lock()
 app = Flask(__name__)
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # ✅ Ajustado al nombre correcto
 DOMAIN = os.getenv("DOMAIN")
 if not TOKEN:
-    print("❌ ERROR: No se ha definido TOKEN en variables de entorno")
+    print("❌ ERROR: No se ha definido TELEGRAM_BOT_TOKEN en variables de entorno")
     exit(1)
+
 bot = tb.TeleBot(TOKEN)
 user_state = {}
 MATERIAS = {"mates": mates, "lengua": lengua, "ingles": ingles, "frances": frances, "ciencias": ciencias}
