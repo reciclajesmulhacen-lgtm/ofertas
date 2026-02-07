@@ -10,8 +10,8 @@ import mates, lengua, ingles, frances, ciencias
 # --- Configuración ---
 lock = th.Lock()
 app = Flask(__name__)
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # ✅ Token Telegram
-DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN")  # ✅ Dominio público Railway
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN")
 if not TOKEN:
     print("❌ ERROR: No se ha definido TELEGRAM_BOT_TOKEN")
     exit(1)
@@ -49,6 +49,14 @@ def get_kb(tipo, *a):
         ) or mk)(types.InlineKeyboardMarkup())
     }
     return kbs.get(tipo, lambda *_: None)(*a)
+
+# --- Cargar examen desde el módulo ---
+def cargar_examen(materia_key, tema_idx, examen_idx):
+    temario = MATERIAS[materia_key].TEMARIO
+    unidad_keys = list(temario.keys())
+    unidad = temario[unidad_keys[tema_idx]]
+    examen = unidad.get("examenes", [])[examen_idx]
+    return examen  # lista de preguntas
 
 # --- Enviar pregunta ---
 def enviar_pregunta(uid, msg_id):
@@ -140,8 +148,7 @@ def set_webhook():
 # --- Main ---
 if __name__=='__main__':
     if not DOMAIN:
-        print("⚠️ Modo desarrollo (sin webhook)")
-        bot.remove_webhook()
+        print("⚠️ Modo desarrollo (polling)")
         bot.infinity_polling()
     else:
         bot.remove_webhook()
