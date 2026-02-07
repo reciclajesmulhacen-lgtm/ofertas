@@ -1,193 +1,107 @@
-import os, json, threading as th
-import telebot as tb
+import os, json, threading as th, telebot as tb
 from telebot import types
 from flask import Flask, request
 from html import escape as esc
-
 import mates, lengua, ingles, frances, ciencias
 
-lock = th.Lock()
-app = Flask(__name__)
+# --- Configuración ---
+lock = th.Lock(); app = Flask(__name__)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN")
-if not TOKEN: print("❌ ERROR: TELEGRAM_BOT_TOKEN no definido"); exit(1)
+if not TOKEN: print("❌ ERROR: TOKEN no definido"); exit(1)
 
 bot = tb.TeleBot(TOKEN)
 user_state = {}
 MATERIAS = {"mates":mates,"lengua":lengua,"ingles":ingles,"frances":frances,"ciencias":ciencias}
 EMOJIS = {"mates":"📐","lengua":"📚","ingles":"🇬🇧","frances":"🇫🇷","ciencias":"🔬"}
 
+# --- Persistencia ---
 def save_json(path,data):
     with lock, open(path,"w+") as f: json.dump(data,f)
 def load_json(path):
     try: return json.load(open(path,"r"))
     except: return {}
 def guardar_estado_usuario(uid,estado):
-    user_state[uid]=estado
-    save_json(f"{uid}.json",estado)
+    user_state[uid]=estado; save_json(f"{uid}.json",estado)
 def restaurar_estado_usuario(uid):
     estado=load_json(f"{uid}.json")
     if estado: user_state[uid]=estado
     return estado
 def borrar_estado_usuario(uid):
     user_state.pop(uid,None)
-    try: os.remove(f"{uid}.json")
-    except: pass
+    if os.path.exists(f"{uid}.json"): os.remove(f"{uid}.json")
 
+# --- Teclados ---
 def get_materias_keyboard():
     mk=types.InlineKeyboardMarkup()
-    for key in MATERIAS.keys():
-        mk.add(types.InlineKeyboardButton(f"{EMOJIS[key]} {key.capitalize()}", callback_data=f"m:{key}"))
-    mk.add(types.InlineKeyboardButton("❌ Cancelar / Salir", callback_data="salir_menu"))
-    return mk
+    for k in MATERIAS.keys(): mk.add(types.InlineKeyboardButton(f"{EMOJIS[k]} {k.capitalize()}",callback_data=f"m:{k}"))
+    return mk.add(types.InlineKeyboardButton("❌ Cancelar / Salir",callback_data="salir_menu"))
 
-def get_temas_keyboard(materia_key):
+def get_temas_keyboard(m_key):
+    mk=types.InlineKeyboardMarkup(); temario=MATERIAS[m_key].TEMARIO
+    for i,k in enumerate(temario.keys()): mk.add(types.InlineKeyboardButton(f"📖 {k}",callback_data=f"t:{m_key}:{i}"))
+    return mk.row(types.InlineKeyboardButton("🔙 Volver",callback_data="menu"),types.InlineKeyboardButton("❌ Salir",callback_data="salir_menu"))
+
+def get_examenes_keyboard(m_key,t_idx):
+    mk=types.InlineKeyboardMarkup(); u_keys=list(MATERIAS[m_key].TEMARIO.keys())
+    exs=MATERIAS[m_key].TEMARIO[u_keys[t_idx]].get("examenes",[])
+    for i in range(len(exs)): mk.add(types.InlineKeyboardButton(f"📝 Examen {i+1}",callback_data=f"e:{m_key}:{t_idx}:{i}"))
+    return mk.row(types.InlineKeyboardButton("🔙 Volver",callback_data=f"m:{m_key}"),types.InlineKeyboardButton("❌ Salir",callback_data="salir_menu"))
+
+def get_pregunta_keyboard(opts,m,t,e,idx):
     mk=types.InlineKeyboardMarkup()
-    temario=MATERIAS[materia_key].TEMARIO
-    for idx,uni_key in enumerate(temario.keys()):
-        mk.add(types.InlineKeyboardButton(f"📖 {uni_key}", callback_data=f"t:{materia_key}:{idx}"))
-    mk.row(
-        types.InlineKeyboardButton("🔙 Volver", callback_data="menu"),
-        types.InlineKeyboardButton("❌ Cancelar / Salir", callback_data="salir_menu")
-    )
-    return mk
+    for i,o in enumerate(opts): mk.add(types.InlineKeyboardButton(f"🅾️ {o}",callback_data=f"p:{m}:{t}:{e}:{idx}:{i}"))
+    return mk.row(types.InlineKeyboardButton("🔙 Volver",callback_data=f"e:{m}:{t}:{e}"),types.InlineKeyboardButton("❌ Salir",callback_data="salir_menu"))
 
-def get_examenes_keyboard(materia_key,tema_idx):
-    mk=types.InlineKeyboardMarkup()
-    temario=MATERIAS[materia_key].TEMARIO
-    unidad_keys=list(temario.keys())
-    examenes=temario[unidad_keys[tema_idx]].get("examenes",[])
-    for ex_idx in range(len(examenes)):
-        mk.add(types.InlineKeyboardButton(f"📝 Examen {ex_idx+1}", callback_data=f"e:{materia_key}:{tema_idx}:{ex_idx}"))
-    mk.row(
-        types.InlineKeyboardButton("🔙 Volver", callback_data=f"m:{materia_key}"),
-        types.InlineKeyboardButton("❌ Cancelar / Salir", callback_data="salir_menu")
-    )
-    return mk
+# --- Lógica de Examen ---
+def enviar_pregunta(uid,mid):
+    s=user_state.get(uid)
+    if not s or s['p_idx']>=len(s['preguntas']): return finalizar_examen(uid,mid)
+    p=s['preguntas'][s['p_idx']]; total=len(s['preguntas']); act=s['p_idx']+1
+    bar="▰"*act+"▱"*(total-act)
+    txt=f"<b>❓ Pregunta {act}/{total}</b>\n───────────────\n<code>{esc(p['p'])}</code>\n[{bar}]"
+    bot.edit_message_text(txt,uid,mid,reply_markup=get_pregunta_keyboard(p['o'],s['materia'],s['t_idx'],s['e_idx'],s['p_idx']),parse_mode='HTML')
 
-def get_pregunta_keyboard(opciones,materia,tema_idx,examen_idx,idx):
-    mk=types.InlineKeyboardMarkup()
-    for i,o in enumerate(opciones):
-        mk.add(types.InlineKeyboardButton(f"🅾️ {o}", callback_data=f"p:{materia}:{tema_idx}:{examen_idx}:{idx}:{i}"))
-    mk.row(
-        types.InlineKeyboardButton("🔙 Volver", callback_data=f"e:{materia}:{tema_idx}:{examen_idx}"),
-        types.InlineKeyboardButton("❌ Cancelar / Salir", callback_data="salir_menu")
-    )
-    return mk
+def finalizar_examen(uid,mid):
+    s=user_state.get(uid); c=s['respuestas_correctas']; t=len(s['preguntas']); pct=int((c/t)*100); borrar_estado_usuario(uid)
+    emo,msg,con=("🏆","¡EXCELENTE!","Dominas el tema") if pct>=90 else ("⭐","¡MUY BIEN!","Buen trabajo") if pct>=70 else ("👍","BIEN","Sigue así") if pct>=50 else ("📚","REPASAR","No te rindas")
+    txt=f"{emo} <b>{msg}</b>\n───────────────\n📊 Nota: {c}/{t} ({pct}%)\n<code>{'▰'*int(pct/10)+'▱'*(10-int(pct/10))}</code>\n\n💡 {con}"
+    mk=types.InlineKeyboardMarkup().row(types.InlineKeyboardButton("🏠 Menú",callback_data="menu"),types.InlineKeyboardButton("❌ Salir",callback_data="salir_menu"))
+    bot.edit_message_text(txt,uid,mid,reply_markup=mk,parse_mode='HTML')
 
-def get_examen_fin_keyboard(state):
-    mk=types.InlineKeyboardMarkup()
-    mk.row(
-        types.InlineKeyboardButton("🔄 Repetir", callback_data=f"e:{state['materia']}:{state['tema_idx']}:{state['examen_idx']}"),
-        types.InlineKeyboardButton("📚 Otros temas", callback_data=f"t:{state['materia']}:{state['tema_idx']}")
-    ).add(
-        types.InlineKeyboardButton("🏠 Menú", callback_data="menu"),
-        types.InlineKeyboardButton("❌ Cancelar / Salir", callback_data="salir_menu")
-    )
-    return mk
-
-def cargar_examen(materia_key,tema_idx,examen_idx):
-    temario=MATERIAS[materia_key].TEMARIO
-    unidad_keys=list(temario.keys())
-    unidad=temario[unidad_keys[tema_idx]]
-    return unidad.get("examenes",[])[examen_idx]
-def enviar_pregunta(uid,msg_id):
-    state=user_state.get(uid)
-    if not state: return
-    idx=state['pregunta_actual']
-    preguntas=state['preguntas']
-    if idx>=len(preguntas):
-        finalizar_examen(uid,msg_id)
-        return
-    p=preguntas[idx]
-    barra="▰"*(idx+1)+"▱"*(len(preguntas)-idx-1)
-    texto=f"<b>❓ Pregunta {idx+1}/{len(preguntas)}</b>\n───────────────\n<code>{esc(p['p'])}</code>\n[{barra}]"
-    bot.edit_message_text(texto,uid,msg_id,reply_markup=get_pregunta_keyboard(p['o'],state['materia'],state['tema_idx'],state['examen_idx'],idx),parse_mode='HTML')
-
-def procesar_respuesta(call):
-    uid=call.message.chat.id
-    d=call.data.split(":")
-    idx,opt=int(d[4]),int(d[5])
-    state=user_state.get(uid)
-    if not state:
-        bot.answer_callback_query(call.id,"⚠️ Sesión expirada",show_alert=True)
-        return
-    if idx!=state['pregunta_actual']:
-        bot.answer_callback_query(call.id,"⏭️ Ya respondiste esta pregunta")
-        return
-    pregunta=state['preguntas'][idx]
-    r_user,r_correct=pregunta['o'][opt],pregunta['r']
-    correcta=r_user==r_correct
-    emoji="✅ CORRECTO" if correcta else "❌ INCORRECTO"
-    bot.edit_message_text(f"<b>{emoji}</b>\n\n<code>{esc(pregunta['p'])}</code>",uid,call.message.message_id,parse_mode='HTML')
-    if correcta: state['respuestas_correctas']+=1
-    state['pregunta_actual']+=1
-    guardar_estado_usuario(uid,state)
-    enviar_pregunta(uid,call.message.message_id)
-
-def finalizar_examen(uid,msg_id):
-    state=user_state.get(uid)
-    if not state: return
-    correct=state['respuestas_correctas']
-    total=len(state['preguntas'])
-    incorrect=total-correct
-    pct=int((correct/total)*100)
-    borrar_estado_usuario(uid)
-    barra="▰"*int((correct/total)*10)+"▱"*(10-int((correct/total)*10))
-    if pct>=90: emoji,msg,consejo="🏆","¡EXCELENTE!","Dominas el tema perfectamente"
-    elif pct>=70: emoji,msg,consejo="⭐","¡MUY BIEN!","Buen trabajo"
-    elif pct>=50: emoji,msg,consejo="👍","BIEN HECHO","Practica un poco más"
-    else: emoji,msg,consejo="📚","SIGUE PRACTICANDO","No te desanimes"
-    texto=f"{emoji} <b>{msg}</b>\n───────────────\n📊 Puntuación: {correct}/{total} ({pct}%)\n[{barra}]\n✅ Correctas: {correct}\n❌ Incorrectas: {incorrect}\n\n💡 {consejo}"
-    bot.edit_message_text(texto,uid,msg_id,reply_markup=get_examen_fin_keyboard(state),parse_mode='HTML')
-
+# --- Handlers ---
 @bot.message_handler(commands=['start'])
 def start(msg):
-    uid=msg.chat.id
-    restaurar_estado_usuario(uid)
-    bot.send_message(uid,"¡Bienvenido! Selecciona una materia:",reply_markup=get_materias_keyboard())
+    uid=msg.chat.id; restaurar_estado_usuario(uid)
+    bot.send_message(uid,"<b>🎓 ESTUDIO 5º PRIMARIA</b>\nSelecciona materia:",reply_markup=get_materias_keyboard(),parse_mode='HTML')
 
-@bot.callback_query_handler(func=lambda call: True)
-def callbacks(call):
-    data=call.data
-    uid=call.message.chat.id
-    if data.startswith("m:"):
-        materia=data.split(":")[1]
-        bot.edit_message_text("<b>Selecciona un tema:</b>",uid,call.message.message_id,reply_markup=get_temas_keyboard(materia),parse_mode='HTML')
-    elif data.startswith("t:"):
-        _,materia,tema_idx=data.split(":")
-        tema_idx=int(tema_idx)
-        bot.edit_message_text("<b>Selecciona un examen:</b>",uid,call.message.message_id,reply_markup=get_examenes_keyboard(materia,tema_idx),parse_mode='HTML')
-    elif data.startswith("e:"):
-        _,materia,tema_idx,examen_idx=data.split(":")
-        tema_idx,examen_idx=int(tema_idx),int(examen_idx)
-        preguntas=cargar_examen(materia,tema_idx,examen_idx)
-        state={'materia':materia,'tema_idx':tema_idx,'examen_idx':examen_idx,'pregunta_actual':0,'respuestas_correctas':0,'preguntas':preguntas}
-        guardar_estado_usuario(uid,state)
-        enviar_pregunta(uid,call.message.message_id)
-    elif data.startswith("p:"):
-        procesar_respuesta(call)
-    elif data in ("menu","salir_menu"):
-        borrar_estado_usuario(uid)
-        bot.edit_message_text("Menú principal. Selecciona una materia:",uid,call.message.message_id,reply_markup=get_materias_keyboard(),parse_mode='HTML')
+@bot.callback_query_handler(func=lambda c: True)
+def calls(c):
+    u=c.message.chat.id; d=c.data; mid=c.message.message_id; bot.answer_callback_query(c.id)
+    if d=="menu" or d=="salir_menu": borrar_estado_usuario(u); bot.edit_message_text("<b>Selecciona materia:</b>",u,mid,reply_markup=get_materias_keyboard(),parse_mode='HTML')
+    elif d.startswith("m:"): 
+        m=d.split(":")[1]; bot.edit_message_text(f"<b>{MATERIAS[m]['nombre'] if hasattr(MATERIAS[m],'nombre') else m.upper()}</b>\nTemas:",u,mid,reply_markup=get_temas_keyboard(m),parse_mode='HTML')
+    elif d.startswith("t:"):
+        _,m,ti=d.split(":"); bot.edit_message_text("<b>Selecciona Examen:</b>",u,mid,reply_markup=get_examenes_keyboard(m,int(ti)),parse_mode='HTML')
+    elif d.startswith("e:"):
+        _,m,ti,ei=d.split(":"); u_keys=list(MATERIAS[m].TEMARIO.keys()); pregs=MATERIAS[m].TEMARIO[u_keys[int(ti)]]["examenes"][int(ei)]
+        user_state[u]={'materia':m,'t_idx':int(ti),'e_idx':int(ei),'p_idx':0,'respuestas_correctas':0,'preguntas':pregs}; guardar_estado_usuario(u,user_state[u]); enviar_pregunta(u,mid)
+    elif d.startswith("p:"):
+        _,m,ti,ei,pi,ri=d.split(":"); s=user_state.get(u)
+        if s and int(pi)==s['p_idx']:
+            cor=(s['preguntas'][int(pi)]['o'][int(ri)]==s['preguntas'][int(pi)]['r'])
+            if cor: s['respuestas_correctas']+=1
+            bot.edit_message_text(f"<b>{'✅ CORRECTO' if cor else '❌ INCORRECTO'}</b>\n\n<code>{esc(s['preguntas'][int(pi)]['p'])}</code>",u,mid,parse_mode='HTML')
+            s['p_idx']+=1; guardar_estado_usuario(u,s); th.Timer(1.0,enviar_pregunta,[u,mid]).start()
 
-@app.route('/')
-def index(): return "Bot funcionando ✅"
-
-@app.route(f'/{TOKEN}',methods=['POST'])
-def webhook():
-    try:
-        update=tb.types.Update.de_json(request.get_data().decode("UTF-8"))
-        bot.process_new_updates([update])
-        return '',200
-    except Exception as e:
-        print(f"❌ Error webhook: {e}")
-        return '',500
-
+# --- Webhook & Flask ---
+@app.route('/'+TOKEN,methods=['POST'])
+def webhook(): bot.process_new_updates([tb.types.Update.de_json(request.get_data().decode("utf-8"))]); return '!',200
 @app.route('/set_webhook')
-def set_webhook():
-    if not DOMAIN: return "❌ RAILWAY_PUBLIC_DOMAIN no definido"
-    url=f"https://{DOMAIN}/{TOKEN}"
-    bot.remove_webhook()
-    bot.set_webhook(url=url)
-    return f"Webhook configurado: {url}
+def set(): bot.remove_webhook(); bot.set_webhook(url=f"https://{DOMAIN}/{TOKEN}"); return "✅ Webhook listo",200
+@app.route('/')
+def index(): return "Bot online",200
+
+if __name__ == '__main__':
+    if not DOMAIN: bot.infinity_polling()
+    else: app.run(host='0.0.0.0',port=int(os.environ.get('PORT',5000)))
